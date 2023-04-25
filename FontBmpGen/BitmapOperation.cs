@@ -370,11 +370,12 @@ namespace FontBmpGen
                 for (int x = 0; x < w; x++)
                 {
                     int start = x * 8;
-                    int max = (bitmap[0].Length - start) < 8? bitmap[0].Length - start : 8;
+                    int lest = bitmap[0].Length - start;
+                    int max = lest < 8? lest : 8;
 
                     for(int i = 0; i < max; i++)
                     {
-                        result[y][x] |= (byte)(bitmap[y][start + i] << (max - i - 1));
+                        result[y][x] |= (byte)(bitmap[y][start + i] << (7 - i));
                     }
                 }
             }
