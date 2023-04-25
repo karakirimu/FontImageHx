@@ -7,6 +7,7 @@ using Color = System.Drawing.Color;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace FontBmpGen
 {
@@ -292,45 +293,74 @@ namespace FontBmpGen
         }
         public static Bitmap BinarizeOtsu(Bitmap bitmap, int threshold)
         {
-            Bitmap binarized = new(bitmap.Width, bitmap.Height);
-            int pixels = bitmap.Width * bitmap.Height;
+            Bitmap result = new(bitmap.Width, bitmap.Height);
+            int pixels_whole = bitmap.Width * bitmap.Height;
+
             int pixels_1 = 0;
-            for (int y = 0; y < bitmap.Height; y++)
-            {
-                for (int x = 0; x < bitmap.Width; x++)
-                {
-                    System.Drawing.Color c = bitmap.GetPixel(x, y);
-                    int gray = (int)(c.R * 0.299 + c.G * 0.587 + c.B * 0.114);
+            int[] thresholded_im = BinarizeSequential(bitmap, threshold);
+            pixels_1 = thresholded_im.Count((val) => val == 1);
 
-                    if(gray > 0)
-                    {
-                        pixels_1++;
-                    }
-                }
-            }
-
-            double weight1 = pixels_1 / pixels;
+            double weight1 = pixels_1 / pixels_whole;
             double weight0 = 1 - weight1;
 
             if(weight1 == 0.0 || weight0 == 0.0)
             {
-                return binarized;
+                return result;
             }
 
+            double[] im = BitmapSequential(bitmap);
+            double[] val_pixels1 = im.Where((val, idx) => thresholded_im[idx] == 1).ToArray();
+            double[] val_pixels0 = im.Where((val, idx) => thresholded_im[idx] == 0).ToArray();
 
+            for (int y = 0; y < bitmap.Height; y++)
+            {
+                for (int x = 0; x < bitmap.Width; x++)
+                {
+                    Color c = bitmap.GetPixel(x, y);
+                    int gray = (int)(c.R * 0.299 + c.G * 0.587 + c.B * 0.114);
+                    int value = gray > threshold ? 255 : 0;
+                    result.SetPixel(x, y, Color.FromArgb(value, value, value));
+                }
+            }
 
+            return result;
+        }
+
+        protected static double[] BitmapSequential(Bitmap bitmap)
+        {
+            double[] result = new double[bitmap.Height * bitmap.Width];
+
+            int i = 0;
+            for (int y = 0; y < bitmap.Height; y++)
+            {
+                for (int x = 0; x < bitmap.Width; x++)
+                {
+                    System.Drawing.Color c = bitmap.GetPixel(x, y);
+                    result[i] = c.R * 0.299 + c.G * 0.587 + c.B * 0.114;
+                    i++;
+                }
+            }
+
+            return result;
+        }
+
+        protected static int[] BinarizeSequential(Bitmap bitmap, int threshold)
+        {
+            int[] result = new int[bitmap.Height * bitmap.Width];
+
+            int i = 0;
             for (int y = 0; y < bitmap.Height; y++)
             {
                 for (int x = 0; x < bitmap.Width; x++)
                 {
                     System.Drawing.Color c = bitmap.GetPixel(x, y);
                     int gray = (int)(c.R * 0.299 + c.G * 0.587 + c.B * 0.114);
-                    int value = gray > threshold ? 255 : 0;
-                    binarized.SetPixel(x, y, System.Drawing.Color.FromArgb(value, value, value));
+                    result[i] = gray > threshold ? 1 : 0;
+                    i++;
                 }
             }
 
-            return binarized;
+            return result;
         }
 
         protected static byte[][] BinaryImageToHexBytes(Bitmap bitmap)
