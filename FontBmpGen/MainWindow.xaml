@@ -17,6 +17,7 @@
         <DataTemplate x:Key="PredefinedSizeTable">
             <ComboBoxItem Content="{Binding}"/>
         </DataTemplate>
+        
     </Window.Resources>
 
     <Grid>
@@ -75,8 +76,7 @@
                 <ComboBox
                     Grid.Column="0"
                     Height="24"
-                    x:Name="FontCombo"
-                    ItemsSource="{Binding FontFamilyList}"
+                    ItemsSource="{Binding FontFamilyList, Mode=OneWay}"
                     Text="{Binding FontFamily}"/>
                 <ComboBox
                     Grid.Column="1" 
@@ -85,6 +85,8 @@
                     IsEditable="True"
                     InputScope="Number"
                     Text="{Binding FontSize}">
+                    <ComboBoxItem Content="6"/>
+                    <ComboBoxItem Content="7"/>
                     <ComboBoxItem Content="8"/>
                     <ComboBoxItem Content="9"/>
                     <ComboBoxItem Content="10"/>
