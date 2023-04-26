@@ -7,6 +7,7 @@ using Color = System.Drawing.Color;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace FontBmpGen
 {
@@ -150,7 +151,7 @@ namespace FontBmpGen
                         continue;
                     }
                     
-                    g.DrawImage(Binarize(DrawCharacter(c, config), binaryThreshold),
+                    g.DrawImage(BinarizeOtsu(DrawCharacter(c, config), binaryThreshold),
                                     new Rectangle(offsetX, offsetY, config.SingleCharWidth, config.SingleCharHeight));
                     offsetX += config.SingleCharWidth;
                 }
@@ -232,7 +233,7 @@ namespace FontBmpGen
                     continue;
                 }
 
-                Bitmap bm = Binarize(DrawCharacter(c, config), binaryThreshold);
+                Bitmap bm = BinarizeOtsu(DrawCharacter(c, config), binaryThreshold);
 
                 ImageProperty prop = new()
                 {
@@ -290,47 +291,86 @@ namespace FontBmpGen
 
             return binarized;
         }
-        public static Bitmap BinarizeOtsu(Bitmap bitmap, int threshold)
-        {
-            Bitmap binarized = new(bitmap.Width, bitmap.Height);
-            int pixels = bitmap.Width * bitmap.Height;
-            int pixels_1 = 0;
-            for (int y = 0; y < bitmap.Height; y++)
-            {
-                for (int x = 0; x < bitmap.Width; x++)
-                {
-                    System.Drawing.Color c = bitmap.GetPixel(x, y);
-                    int gray = (int)(c.R * 0.299 + c.G * 0.587 + c.B * 0.114);
 
-                    if(gray > 0)
-                    {
-                        pixels_1++;
-                    }
-                }
+        public static double Variance(double[] data)
+        {
+            double mean = data.Sum() / data.Length;
+            double sumOfSquaredDifferences = 0;
+
+            foreach (double value in data)
+            {
+                double difference = value - mean;
+                double squaredDifference = difference * difference;
+                sumOfSquaredDifferences += squaredDifference;
             }
 
-            double weight1 = pixels_1 / pixels;
+            double variance = sumOfSquaredDifferences / data.Length;
+            return variance;
+        }
+
+        public static Bitmap BinarizeOtsu(Bitmap bitmap, int threshold)
+        {
+            int pixels_whole = bitmap.Width * bitmap.Height;
+
+            int pixels_1 = 0;
+            int[] thresholded_im = BinarizeSequential(bitmap, threshold);
+            pixels_1 = thresholded_im.Count((val) => val == 1);
+
+            double weight1 = pixels_1 / pixels_whole;
             double weight0 = 1 - weight1;
 
             if(weight1 == 0.0 || weight0 == 0.0)
             {
-                return binarized;
+                return bitmap;
             }
 
+            double[] im = BitmapSequential(bitmap);
+            double[] val_pixels1 = im.Where((val, idx) => thresholded_im[idx] == 1).ToArray();
+            double[] val_pixels0 = im.Where((val, idx) => thresholded_im[idx] == 0).ToArray();
 
+            double var1 = val_pixels1.Length > 0 ? Variance(val_pixels1) : 0;
+            double var0 = val_pixels0.Length > 0 ? Variance(val_pixels0) : 0;
 
+            int criteria = (int)(weight0 * var0 + weight1 * var1);
+
+            return Binarize(bitmap, criteria);
+        }
+
+        protected static double[] BitmapSequential(Bitmap bitmap)
+        {
+            double[] result = new double[bitmap.Height * bitmap.Width];
+
+            int i = 0;
+            for (int y = 0; y < bitmap.Height; y++)
+            {
+                for (int x = 0; x < bitmap.Width; x++)
+                {
+                    System.Drawing.Color c = bitmap.GetPixel(x, y);
+                    result[i] = c.R * 0.299 + c.G * 0.587 + c.B * 0.114;
+                    i++;
+                }
+            }
+
+            return result;
+        }
+
+        protected static int[] BinarizeSequential(Bitmap bitmap, int threshold)
+        {
+            int[] result = new int[bitmap.Height * bitmap.Width];
+
+            int i = 0;
             for (int y = 0; y < bitmap.Height; y++)
             {
                 for (int x = 0; x < bitmap.Width; x++)
                 {
                     System.Drawing.Color c = bitmap.GetPixel(x, y);
                     int gray = (int)(c.R * 0.299 + c.G * 0.587 + c.B * 0.114);
-                    int value = gray > threshold ? 255 : 0;
-                    binarized.SetPixel(x, y, System.Drawing.Color.FromArgb(value, value, value));
+                    result[i] = gray > threshold ? 1 : 0;
+                    i++;
                 }
             }
 
-            return binarized;
+            return result;
         }
 
         protected static byte[][] BinaryImageToHexBytes(Bitmap bitmap)
@@ -370,11 +410,12 @@ namespace FontBmpGen
                 for (int x = 0; x < w; x++)
                 {
                     int start = x * 8;
-                    int max = (bitmap[0].Length - start) < 8? bitmap[0].Length - start : 8;
+                    int lest = bitmap[0].Length - start;
+                    int max = lest < 8? lest : 8;
 
                     for(int i = 0; i < max; i++)
                     {
-                        result[y][x] |= (byte)(bitmap[y][start + i] << (max - i - 1));
+                        result[y][x] |= (byte)(bitmap[y][start + i] << (7 - i));
                     }
                 }
             }

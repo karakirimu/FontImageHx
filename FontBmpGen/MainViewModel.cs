@@ -198,40 +198,6 @@ namespace FontBmpGen
                     File.WriteAllText(saveFileDialog.FileName, json);
                 }
             });
-
-            FontFamilyList = EnumerateFontFamily();
-
-        }
-
-        private ObservableCollection<ComboBoxItem> EnumerateFontFamily()
-        {
-            ObservableCollection<ComboBoxItem> comboBoxItems = new();
-            var CreateItem = (string text, FontFamily fontFamily, double fontSize) =>
-            {
-                ComboBoxItem item = new();
-                TextBlock textBlock = new()
-                {
-                    Text = text,
-                    FontFamily = fontFamily,
-                    FontSize = fontSize
-                };
-
-                item.Content = textBlock;
-
-                return item;
-            };
-
-            // インストールされているすべてのフォントを取得する
-            IEnumerable<FontFamily> fonts = Fonts.SystemFontFamilies;
-            List<FontFamily> fontfamily = new(fonts);
-            fontfamily.Sort((f1, f2) => f1.Source.CompareTo(f2.Source));
-
-            foreach (FontFamily font in fontfamily)
-            {
-                comboBoxItems.Add(CreateItem(font.Source, new FontFamily(font.Source), 14.0));
-            }
-
-            return comboBoxItems;
         }
 
         public int FontSize

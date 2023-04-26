@@ -18,40 +18,10 @@ namespace FontBmpGen
         {
             InitializeComponent();
 
-            //PopulateFontList();
             viewModel = new MainViewModel();
             viewModel.PropertyChanged += OnPropertyChanged;
-            DataContext = viewModel;
-            
+            DataContext = viewModel;   
         }
-
-        //private void PopulateFontList()
-        //{
-        //    var CreateItem = (string text, FontFamily fontFamily, double fontSize) =>
-        //    {
-        //        ComboBoxItem item = new();
-        //        TextBlock textBlock = new()
-        //        {
-        //            Text = text,
-        //            FontFamily = fontFamily,
-        //            FontSize = fontSize
-        //        };
-
-        //        item.Content = textBlock;
-
-        //        return item;
-        //    };
-
-        //    // インストールされているすべてのフォントを取得する
-        //    IEnumerable<FontFamily> fonts = Fonts.SystemFontFamilies;
-        //    List<FontFamily> fontfamily = new(fonts);
-        //    fontfamily.Sort((f1, f2) => f1.Source.CompareTo(f2.Source));
-
-        //    foreach (FontFamily font in fontfamily)
-        //    {
-        //        FontCombo.Items.Add(CreateItem(font.Source, new FontFamily(font.Source), 14.0));
-        //    }
-        //}
 
         private void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -74,7 +44,6 @@ namespace FontBmpGen
                 = new TextRange(InputArea.Document.ContentStart,
                                 InputArea.Document.ContentEnd).Text;
             viewModel.TextAreaString = text;
-            //string text = viewModel.TextAreaString;
 
             if(text == "\r\n")
             {
@@ -82,8 +51,6 @@ namespace FontBmpGen
                 return;
             }
 
-            //OutputArea.Source = BitmapOperation.UpdateImageArea(text,
-            //    viewModel.FontFamily, viewModel.FontSize, viewModel.BinaryThreshold);
             FontAdjustConfig config = new()
             {
                 SingleCharWidth = viewModel.CharWidth,
