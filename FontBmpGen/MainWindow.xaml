@@ -61,6 +61,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="32" />
                 <RowDefinition Height="32" />
+                <RowDefinition Height="32" />
                 <RowDefinition Height="1*" />
             </Grid.RowDefinitions>
 
@@ -180,36 +181,27 @@
                 <Button Grid.Row="1" Height="24" Content="Paste Ascii" Click="PasteAscii_Click" Padding="8 0 8 0"/>
             </StackPanel>
 
-            <RichTextBox Margin="2" x:Name="InputArea" Grid.Row="2" TextChanged="InputArea_TextChanged" />
+            <Grid VerticalAlignment="Center" Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="48" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Threshold" Padding="0 0 8 0" />
+                <Slider Grid.Column="1" Minimum="0" Maximum="255" Value="{Binding BinaryThreshold}" />
+                <TextBlock Grid.Column="2" Text="{Binding BinaryThreshold}" />
+            </Grid>
+
+            <RichTextBox Grid.Row="3" Margin="2" x:Name="InputArea" TextChanged="InputArea_TextChanged" />
 
         </Grid>
 
         <Grid Grid.Row="1" Grid.Column="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="32"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Margin="2">
-
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
-
-                <Grid VerticalAlignment="Center">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="48" />
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Threshold" Padding="0 0 8 0" />
-                    <Slider Grid.Column="1" Minimum="0" Maximum="255" Value="{Binding BinaryThreshold}" />
-                    <TextBlock Grid.Column="2" Text="{Binding BinaryThreshold}" />
-                </Grid>
-
-            </Grid>
-
-            <TabControl x:Name="tabControl" Grid.Row="1">
+            <TabControl x:Name="tabControl" Grid.Row="0">
                 <TabItem Header="Image">
                     <Image 
                         x:Name="OutputArea"

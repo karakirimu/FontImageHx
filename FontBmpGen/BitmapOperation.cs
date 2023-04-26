@@ -151,7 +151,7 @@ namespace FontBmpGen
                         continue;
                     }
                     
-                    g.DrawImage(Binarize(DrawCharacter(c, config), binaryThreshold),
+                    g.DrawImage(BinarizeOtsu(DrawCharacter(c, config), binaryThreshold),
                                     new Rectangle(offsetX, offsetY, config.SingleCharWidth, config.SingleCharHeight));
                     offsetX += config.SingleCharWidth;
                 }
@@ -233,7 +233,7 @@ namespace FontBmpGen
                     continue;
                 }
 
-                Bitmap bm = Binarize(DrawCharacter(c, config), binaryThreshold);
+                Bitmap bm = BinarizeOtsu(DrawCharacter(c, config), binaryThreshold);
 
                 ImageProperty prop = new()
                 {
@@ -291,9 +291,25 @@ namespace FontBmpGen
 
             return binarized;
         }
+
+        public static double Variance(double[] data)
+        {
+            double mean = data.Sum() / data.Length;
+            double sumOfSquaredDifferences = 0;
+
+            foreach (double value in data)
+            {
+                double difference = value - mean;
+                double squaredDifference = difference * difference;
+                sumOfSquaredDifferences += squaredDifference;
+            }
+
+            double variance = sumOfSquaredDifferences / data.Length;
+            return variance;
+        }
+
         public static Bitmap BinarizeOtsu(Bitmap bitmap, int threshold)
         {
-            Bitmap result = new(bitmap.Width, bitmap.Height);
             int pixels_whole = bitmap.Width * bitmap.Height;
 
             int pixels_1 = 0;
@@ -305,25 +321,19 @@ namespace FontBmpGen
 
             if(weight1 == 0.0 || weight0 == 0.0)
             {
-                return result;
+                return bitmap;
             }
 
             double[] im = BitmapSequential(bitmap);
             double[] val_pixels1 = im.Where((val, idx) => thresholded_im[idx] == 1).ToArray();
             double[] val_pixels0 = im.Where((val, idx) => thresholded_im[idx] == 0).ToArray();
 
-            for (int y = 0; y < bitmap.Height; y++)
-            {
-                for (int x = 0; x < bitmap.Width; x++)
-                {
-                    Color c = bitmap.GetPixel(x, y);
-                    int gray = (int)(c.R * 0.299 + c.G * 0.587 + c.B * 0.114);
-                    int value = gray > threshold ? 255 : 0;
-                    result.SetPixel(x, y, Color.FromArgb(value, value, value));
-                }
-            }
+            double var1 = val_pixels1.Length > 0 ? Variance(val_pixels1) : 0;
+            double var0 = val_pixels0.Length > 0 ? Variance(val_pixels0) : 0;
 
-            return result;
+            int criteria = (int)(weight0 * var0 + weight1 * var1);
+
+            return Binarize(bitmap, criteria);
         }
 
         protected static double[] BitmapSequential(Bitmap bitmap)
