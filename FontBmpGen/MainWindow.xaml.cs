@@ -2,7 +2,6 @@
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Collections.Generic;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace FontBmpGen
@@ -25,29 +24,17 @@ namespace FontBmpGen
 
         private void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            Update();
-        }
-
-        private void InputArea_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            Update();
-        }
-
-        private void Update()
-        {
             if (OutputArea == null)
             {
                 return;
             }
 
-            string text
-                = new TextRange(InputArea.Document.ContentStart,
-                                InputArea.Document.ContentEnd).Text;
-            viewModel.TextAreaString = text;
+            string text = viewModel.TextAreaString;
 
-            if(text == "\r\n")
+            if (text == "\r\n" || text == "")
             {
                 OutputArea.Source = new BitmapImage();
+                viewModel.ConvertedImages.Clear();
                 return;
             }
 
@@ -67,31 +54,13 @@ namespace FontBmpGen
 
             viewModel.ConvertedImages.Clear();
 
-            List<ImageProperty> p 
+            List<ImageProperty> p
                 = BitmapOperation.GetImageList(text, config, viewModel.BinaryThreshold);
 
             foreach (ImageProperty item in p)
             {
                 viewModel.ConvertedImages.Add(item);
             }
-        }
-
-        private void PasteAscii_Click(object sender, RoutedEventArgs e)
-        {
-            // テキストを設定する
-            const string ascii
-            = " !\"#$%&'()*+,-./\n" +
-              "0123456789:;<=>?\n" +
-              "@ABCDEFGHIJKLMNO\n" +
-              "PQRSTUVWXYZ[\\]^_\n" +
-              "`abcdefghijklmno\n" +
-              "pqrstuvwxyz{|}~";
-
-            // FlowDocumentを作成する
-            FlowDocument document = new(new Paragraph(new Run(ascii)));
-
-            // RichTextBoxのDocumentプロパティにFlowDocumentを設定する
-            InputArea.Document = document;
         }
     }
 }

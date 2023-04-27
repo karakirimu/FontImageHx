@@ -109,7 +109,7 @@ namespace FontBmpGen
         public static Bitmap GetImage(string text, FontAdjustConfig config, int binaryThreshold)
         {
             int width = 0;
-            int height = 0;
+            int height = config.SingleCharHeight;
 
             int tmpw = 0;
             foreach (char c in text)
@@ -127,6 +127,8 @@ namespace FontBmpGen
                 }
                 tmpw += config.SingleCharWidth;
             }
+
+            width = tmpw > width ? tmpw : width;
 
             var result = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
             using (var g = Graphics.FromImage(result))

@@ -51,6 +51,7 @@ namespace FontBmpGen
         public MainWindowCommand SaveCHex { get; init; }
         public MainWindowCommand OpenProfile { get; init; }
         public MainWindowCommand SaveProfile { get; init; }
+        public MainWindowCommand PasteAscii { get; init; }
         public MainViewModel()
         {
             Close = new MainWindowCommand(
@@ -198,6 +199,19 @@ namespace FontBmpGen
                     File.WriteAllText(saveFileDialog.FileName, json);
                 }
             });
+
+            PasteAscii = new MainWindowCommand((_) =>
+            {
+                const string ascii
+                    = " !\"#$%&'()*+,-./\n" +
+                      "0123456789:;<=>?\n" +
+                      "@ABCDEFGHIJKLMNO\n" +
+                      "PQRSTUVWXYZ[\\]^_\n" +
+                      "`abcdefghijklmno\n" +
+                      "pqrstuvwxyz{|}~";
+
+                TextAreaString = ascii;
+            });
         }
 
         public int FontSize
@@ -284,7 +298,7 @@ namespace FontBmpGen
             set
             {
                 _textString = value;
-                //OnPropertyChanged();
+                OnPropertyChanged();
             }
         }
 
