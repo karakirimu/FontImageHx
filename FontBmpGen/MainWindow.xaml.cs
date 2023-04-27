@@ -1,7 +1,5 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace FontBmpGen
@@ -12,14 +10,14 @@ namespace FontBmpGen
     public partial class MainWindow : Window
     {
         private readonly MainViewModel viewModel;
-  
+
         public MainWindow()
         {
             InitializeComponent();
 
             viewModel = new MainViewModel();
             viewModel.PropertyChanged += OnPropertyChanged;
-            DataContext = viewModel;   
+            DataContext = viewModel;
         }
 
         private void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

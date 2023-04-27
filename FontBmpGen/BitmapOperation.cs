@@ -1,19 +1,19 @@
-﻿using System.Drawing;
-using System.IO;
-using System.Windows.Media.Imaging;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using Color = System.Drawing.Color;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Windows.Media.Imaging;
+using Color = System.Drawing.Color;
 
 namespace FontBmpGen
 {
     public class FontAdjustConfig
     {
-        public FontAdjustConfig() {
+        public FontAdjustConfig()
+        {
             FontFamily = "Arial";
             FontSize = 12;
             SingleCharWidth = 12;
@@ -76,8 +76,8 @@ namespace FontBmpGen
             using var g = Graphics.FromImage(bmp);
 
             FontStyle fontStyle = FontStyle.Regular;
-            if (config.Bold)      fontStyle |= FontStyle.Bold;
-            if (config.Italic)    fontStyle |= FontStyle.Italic;
+            if (config.Bold) fontStyle |= FontStyle.Bold;
+            if (config.Italic) fontStyle |= FontStyle.Italic;
             if (config.Underline) fontStyle |= FontStyle.Underline;
 
             // フォントファイルを読み込む
@@ -93,7 +93,7 @@ namespace FontBmpGen
             // 描画設定
             g.TextRenderingHint = TextRenderingHint.SingleBitPerPixel;
             g.SmoothingMode = SmoothingMode.HighSpeed;
-      
+
             // テキストを描画
             using var brush = new SolidBrush(Color.White);
             g.DrawString(c.ToString(), font, brush, x, y);
@@ -103,7 +103,7 @@ namespace FontBmpGen
 
         public static BitmapImage DrawTextInSpecifiedSize(string text, FontAdjustConfig config, int binaryThreshold)
         {
-            return ConvertImage(GetImage(text,config,binaryThreshold));
+            return ConvertImage(GetImage(text, config, binaryThreshold));
         }
 
         public static Bitmap GetImage(string text, FontAdjustConfig config, int binaryThreshold)
@@ -114,7 +114,7 @@ namespace FontBmpGen
             int tmpw = 0;
             foreach (char c in text)
             {
-                if(c == '\r')
+                if (c == '\r')
                 {
                     continue;
                 }
@@ -152,7 +152,7 @@ namespace FontBmpGen
                         offsetX = 0;
                         continue;
                     }
-                    
+
                     g.DrawImage(BinarizeOtsu(DrawCharacter(c, config), binaryThreshold),
                                     new Rectangle(offsetX, offsetY, config.SingleCharWidth, config.SingleCharHeight));
                     offsetX += config.SingleCharWidth;
@@ -189,7 +189,7 @@ namespace FontBmpGen
             string[] data = hex.Split(',');
             byte[] imagebyte = new byte[data.Length];
 
-            for(int i = 0; i < data.Length; i++)
+            for (int i = 0; i < data.Length; i++)
             {
                 string val = data[i].Replace("0x", "");
                 imagebyte[i] = Convert.ToByte(val, 16);
@@ -204,8 +204,8 @@ namespace FontBmpGen
                     int bx = x / 8;
                     int bi = 7 - (x % 8);
 
-                    bool result = (((imagebyte[y * charwidth/8 + bx] >> bi) & 1) > 0);
-                    bitmap.SetPixel(x, y, result? Color.White : Color.Black);
+                    bool result = (((imagebyte[y * charwidth / 8 + bx] >> bi) & 1) > 0);
+                    bitmap.SetPixel(x, y, result ? Color.White : Color.Black);
                 }
             }
 
@@ -321,7 +321,7 @@ namespace FontBmpGen
             double weight1 = pixels_1 / pixels_whole;
             double weight0 = 1 - weight1;
 
-            if(weight1 == 0.0 || weight0 == 0.0)
+            if (weight1 == 0.0 || weight0 == 0.0)
             {
                 return bitmap;
             }
@@ -413,9 +413,9 @@ namespace FontBmpGen
                 {
                     int start = x * 8;
                     int lest = bitmap[0].Length - start;
-                    int max = lest < 8? lest : 8;
+                    int max = lest < 8 ? lest : 8;
 
-                    for(int i = 0; i < max; i++)
+                    for (int i = 0; i < max; i++)
                     {
                         result[y][x] |= (byte)(bitmap[y][start + i] << (7 - i));
                     }

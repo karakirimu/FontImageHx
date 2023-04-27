@@ -80,17 +80,17 @@ namespace FontBmpGenTest
             Assert.That(converted[0][0], Is.EqualTo(expected));
         }
 
-        [TestCase(new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 },0x01)]
-        [TestCase(new byte[] { 0, 0, 0, 0, 0, 0, 1, 0 },0x02)]
-        [TestCase(new byte[] { 0, 0, 0, 0, 0, 1, 0, 0 },0x04)]
-        [TestCase(new byte[] { 0, 0, 0, 0, 1, 0, 0, 0 },0x08)]
-        [TestCase(new byte[] { 0, 0, 0, 1, 0, 0, 0, 0 },0x10)]
-        [TestCase(new byte[] { 0, 0, 1, 0, 0, 0, 0, 0 },0x20)]
-        [TestCase(new byte[] { 0, 1, 0, 0, 0, 0, 0, 0 },0x40)]
-        [TestCase(new byte[] { 1, 0, 0, 0, 0, 0, 0, 0 },0x80)]
+        [TestCase(new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 }, 0x01)]
+        [TestCase(new byte[] { 0, 0, 0, 0, 0, 0, 1, 0 }, 0x02)]
+        [TestCase(new byte[] { 0, 0, 0, 0, 0, 1, 0, 0 }, 0x04)]
+        [TestCase(new byte[] { 0, 0, 0, 0, 1, 0, 0, 0 }, 0x08)]
+        [TestCase(new byte[] { 0, 0, 0, 1, 0, 0, 0, 0 }, 0x10)]
+        [TestCase(new byte[] { 0, 0, 1, 0, 0, 0, 0, 0 }, 0x20)]
+        [TestCase(new byte[] { 0, 1, 0, 0, 0, 0, 0, 0 }, 0x40)]
+        [TestCase(new byte[] { 1, 0, 0, 0, 0, 0, 0, 0 }, 0x80)]
         public void ToBit8(byte[] test, byte expected)
         {
-            byte[][] target = new byte[][]{test};
+            byte[][] target = new byte[][] { test };
             var converted = ToBit(target);
             Assert.That(converted[0][0], Is.EqualTo(expected));
         }

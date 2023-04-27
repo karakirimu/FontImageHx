@@ -7,8 +7,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace FontBmpGen
 {
@@ -29,7 +27,7 @@ namespace FontBmpGen
         public bool fontunderline { get; init; }
         public int binarythreshold { get; init; }
         public string? text { get; init; }
-        public List<imageinfo>? image {get; init;}
+        public List<imageinfo>? image { get; init; }
     }
 
     internal class MainViewModel : INotifyPropertyChanged
@@ -129,7 +127,7 @@ namespace FontBmpGen
                     Filter = "Profile (*.fbp)|*.fbp|All Files (*.*)|*.*",
                 };
 
-                if( openFileDialog.ShowDialog() == true)
+                if (openFileDialog.ShowDialog() == true)
                 {
                     string json = File.ReadAllText(openFileDialog.FileName);
                     fontprofile? profile = JsonSerializer.Deserialize<fontprofile>(json);
@@ -145,7 +143,7 @@ namespace FontBmpGen
 
                     ConvertedImages.Clear();
 
-                    foreach(var imageinfo in profile.image)
+                    foreach (var imageinfo in profile.image)
                     {
                         ConvertedImages.Add(new ImageProperty()
                         {
@@ -319,7 +317,7 @@ namespace FontBmpGen
             get => _charHeight;
             set
             {
-                if (_charHeight!= value)
+                if (_charHeight != value)
                 {
                     _charHeight = value;
                     OnPropertyChanged();
