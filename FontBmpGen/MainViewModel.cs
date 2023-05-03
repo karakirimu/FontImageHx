@@ -41,20 +41,20 @@ namespace FontBmpGen
         private string _textString = "";
         private int _charWidth = 16;
         private int _charHeight = 16;
+        private ImageProperty _selectedImage;
 
         public ObservableCollection<ImageProperty> ConvertedImages { get; set; }
-        public ObservableCollection<ComboBoxItem> FontFamilyList { get; init; }
-        public MainWindowCommand Close { get; init; }
-        public MainWindowCommand SaveBitmap { get; init; }
-        public MainWindowCommand SaveCHex { get; init; }
-        public MainWindowCommand OpenProfile { get; init; }
-        public MainWindowCommand SaveProfile { get; init; }
-        public MainWindowCommand PasteAscii { get; init; }
+        public WindowCommand Close { get; init; }
+        public WindowCommand SaveBitmap { get; init; }
+        public WindowCommand SaveCHex { get; init; }
+        public WindowCommand OpenProfile { get; init; }
+        public WindowCommand SaveProfile { get; init; }
+        public WindowCommand PasteAscii { get; init; }
         public MainViewModel()
         {
-            Close = new MainWindowCommand(
+            Close = new WindowCommand(
                         (_) => { System.Windows.Application.Current.Shutdown(); });
-            SaveBitmap = new MainWindowCommand((_) =>
+            SaveBitmap = new WindowCommand((_) =>
             {
                 SaveFileDialog saveFileDialog = new()
                 {
@@ -85,7 +85,7 @@ namespace FontBmpGen
 
             ConvertedImages = new ObservableCollection<ImageProperty>();
 
-            SaveCHex = new MainWindowCommand((_) =>
+            SaveCHex = new WindowCommand((_) =>
             {
                 SaveFileDialog saveFileDialog = new()
                 {
@@ -120,7 +120,7 @@ namespace FontBmpGen
                 }
             });
 
-            OpenProfile = new MainWindowCommand((_) =>
+            OpenProfile = new WindowCommand((_) =>
             {
                 OpenFileDialog openFileDialog = new()
                 {
@@ -156,7 +156,7 @@ namespace FontBmpGen
                 }
             });
 
-            SaveProfile = new MainWindowCommand((_) =>
+            SaveProfile = new WindowCommand((_) =>
             {
                 SaveFileDialog saveFileDialog = new()
                 {
@@ -198,7 +198,7 @@ namespace FontBmpGen
                 }
             });
 
-            PasteAscii = new MainWindowCommand((_) =>
+            PasteAscii = new WindowCommand((_) =>
             {
                 const string ascii
                     = " !\"#$%&'()*+,-./\n" +
@@ -321,6 +321,18 @@ namespace FontBmpGen
                 {
                     _charHeight = value;
                     OnPropertyChanged();
+                }
+            }
+        }
+
+        public ImageProperty SelectedImage
+        {
+            get => _selectedImage;
+            set
+            {
+                if (_selectedImage != value)
+                {
+                    _selectedImage = value;
                 }
             }
         }

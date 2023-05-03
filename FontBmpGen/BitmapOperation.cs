@@ -162,7 +162,7 @@ namespace FontBmpGen
             return result;
         }
 
-        protected static string ToSequential(byte[][] bitmap)
+        public static string ToSequential(byte[][] bitmap)
         {
             int w = bitmap[0].Length;
             int h = bitmap.Length;
@@ -179,33 +179,47 @@ namespace FontBmpGen
             return result.Remove(result.Length - 1);
         }
 
+        protected static byte[][] ToMiniBitmap(string sequential, int width, int height)
+        {
+            string[] hexValues = sequential.Split(',');
+            int w = width / 8 + ((width % 8 > 0) ? 1 : 0);
+            int h = height;
+            byte[][] result = new byte[h][];
+
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    if (x == 0)
+                    {
+                        result[y] = new byte[w];
+                    }
+
+                    result[y][x] = Convert.ToByte(hexValues[y*w + x], 16);
+                }
+            }
+
+            return result;
+        }
+
+
         public static BitmapImage GetImageFromString(string hex, int charwidth, int charheight)
         {
             return ConvertImage(FromSequential(hex, charwidth, charheight));
         }
 
-        protected static Bitmap FromSequential(string hex, int charwidth, int charheight)
+        public static Bitmap FromSequential(string hex, int charwidth, int charheight)
         {
-            string[] data = hex.Split(',');
-            byte[] imagebyte = new byte[data.Length];
-
-            for (int i = 0; i < data.Length; i++)
-            {
-                string val = data[i].Replace("0x", "");
-                imagebyte[i] = Convert.ToByte(val, 16);
-            }
+            byte[][] image = ToMiniBitmap(hex, charwidth, charheight);
+            byte[][] bytedata = BitToByte(image, charwidth);
 
             Bitmap bitmap = new(charwidth, charheight);
 
-            for (int y = 0; y < bitmap.Height; y++)
+            for (int y = 0; y < charheight; y++)
             {
-                for (int x = 0; x < bitmap.Width; x++)
+                for (int x = 0; x < charwidth; x++)
                 {
-                    int bx = x / 8;
-                    int bi = 7 - (x % 8);
-
-                    bool result = (((imagebyte[y * charwidth / 8 + bx] >> bi) & 1) > 0);
-                    bitmap.SetPixel(x, y, result ? Color.White : Color.Black);
+                    bitmap.SetPixel(x, y, bytedata[y][x] != 0? Color.White : Color.Black);
                 }
             }
 
@@ -375,7 +389,7 @@ namespace FontBmpGen
             return result;
         }
 
-        protected static byte[][] BinaryImageToHexBytes(Bitmap bitmap)
+        public static byte[][] BinaryImageToHexBytes(Bitmap bitmap)
         {
             byte[][] result = new byte[bitmap.Height][];
 
@@ -396,10 +410,32 @@ namespace FontBmpGen
                 }
             }
 
-            return ToBit(result);
+            return ByteToBit(result);
         }
 
-        protected static byte[][] ToBit(byte[][] bitmap)
+        protected static byte[][] BitToByte(byte[][] bitmap, int width)
+        {
+            int w = width;
+            int h = bitmap.Length;
+
+            byte[][] result = new byte[h][];
+
+            for (int y = 0; y < h; y++)
+            {
+                result[y] = new byte[w];
+                for (int x = 0; x < w; x++)
+                {
+                    int start = x / 8;
+                    int bit = 7 - (x % 8);
+
+                    result[y][x] = (byte)((bitmap[y][start] >> bit) & 1);
+                }
+            }
+
+            return result;
+        }
+
+        public static byte[][] ByteToBit(byte[][] bitmap)
         {
             int w = (bitmap[0].Length / 8) + Convert.ToInt32(bitmap[0].Length % 8 > 0);
             int h = bitmap.Length;

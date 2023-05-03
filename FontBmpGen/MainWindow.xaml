@@ -231,12 +231,17 @@
                         StretchDirection="DownOnly" />
                 </TabItem>
                 <TabItem Header="List">
-                    <DataGrid ItemsSource="{Binding ConvertedImages}" AutoGenerateColumns="False">
+                    <DataGrid 
+                        ItemsSource="{Binding ConvertedImages}"
+                        SelectedItem="{Binding Path=SelectedImage, Mode=OneWayToSource}"
+                        AutoGenerateColumns="False"
+                        CanUserAddRows="False"
+                        CanUserDeleteRows="False">
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="View">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Image 
+                                        <Image
                                             Source="{Binding View}"
                                             RenderOptions.BitmapScalingMode="NearestNeighbor"
                                             />
@@ -251,6 +256,13 @@
                                     </Style>
                                 </DataGridTextColumn.ElementStyle>
                             </DataGridTextColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Click="Button_Click">Edit</Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </TabItem>

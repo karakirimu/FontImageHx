@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 namespace FontBmpGen
@@ -58,6 +60,35 @@ namespace FontBmpGen
             foreach (ImageProperty item in p)
             {
                 viewModel.ConvertedImages.Add(item);
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (viewModel.ConvertedImages.Contains(viewModel.SelectedImage))
+            {
+                int index 
+                    = viewModel.ConvertedImages.IndexOf(viewModel.SelectedImage);
+
+                BitmapEditWindow window = new(
+                    viewModel.SelectedImage.Hex,
+                    viewModel.CharWidth,
+                    viewModel.CharHeight);
+
+                if (window.ShowDialog() == true)
+                {
+                    Trace.WriteLine(window.Result);
+
+                    ImageProperty property = new ImageProperty()
+                    {
+                        View = BitmapOperation.GetImageFromString(
+                            window.Result, viewModel.CharWidth, viewModel.CharHeight),
+                        Hex = window.Result,
+                        Character = viewModel.SelectedImage.Character
+                    };
+
+                    viewModel.ConvertedImages[index] = property;
+                }
             }
         }
     }
