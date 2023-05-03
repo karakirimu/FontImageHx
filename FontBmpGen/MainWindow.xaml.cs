@@ -71,6 +71,7 @@ namespace FontBmpGen
                     = viewModel.ConvertedImages.IndexOf(viewModel.SelectedImage);
 
                 BitmapEditWindow window = new(
+                    viewModel.SelectedImage.Character,
                     viewModel.SelectedImage.Hex,
                     viewModel.CharWidth,
                     viewModel.CharHeight);

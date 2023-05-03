@@ -148,7 +148,7 @@ namespace FontBmpGen
                         ConvertedImages.Add(new ImageProperty()
                         {
                             View = BitmapOperation.GetImageFromString(imageinfo.Hex, profile.charwidth, profile.charheight),
-                            Character = imageinfo.Character,
+                            Character = (char)imageinfo.Character,
                             Hex = imageinfo.Hex
                         });
                     }

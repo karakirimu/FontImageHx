@@ -36,7 +36,7 @@ namespace FontBmpGen
     public class ImageProperty
     {
         public BitmapImage? View { get; set; }
-        public char? Character { get; set; }
+        public char Character { get; set; }
         public string? Hex { get; set; }
     }
 

@@ -18,6 +18,7 @@ namespace FontBmpGen
     {
         private int _charWidth = 0;
         private int _charHeight = 0;
+        private string _Title;
         private Bitmap _Bitmap;
         private ToggleButton[][] _toggleButtonMap;
 
@@ -52,12 +53,13 @@ namespace FontBmpGen
             return resultMap;
         }
 
-        public BitmapEditViewModel(string hex, int width, int height)
+        public BitmapEditViewModel(char character, string hex, int width, int height)
         {
             _charWidth = width;
             _charHeight = height;
             _Bitmap = BitmapOperation.FromSequential(hex, width, height);
             _toggleButtonMap = CreateToggleButtonMap(width, height);
+            _Title = $"Edit '{character}'";
 
             ClickUp = new WindowCommand((_) =>
             {
@@ -152,6 +154,19 @@ namespace FontBmpGen
                 if (_charHeight != value)
                 {
                     _charHeight = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string Title
+        {
+            get => _Title;
+            set
+            {
+                if (_Title != value)
+                {
+                    _Title = value;
                     OnPropertyChanged();
                 }
             }

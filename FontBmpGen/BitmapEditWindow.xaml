@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:FontBmpGen"
         d:DataContext="{d:DesignInstance Type=local:BitmapEditViewModel}"
         mc:Ignorable="d"
-        Title="Edit Image" Height="400" Width="600">
+        Title="{Binding Title}"
+        Height="400"
+        Width="600">
     <Window.Resources>
 
         <ControlTemplate x:Key="ToggleButtonWhite" TargetType="ToggleButton">
@@ -82,6 +84,7 @@
         <Grid 
             x:Name="BitmapGrid"
             Grid.Row="0"
+            Grid.RowSpan="2"
             Grid.Column="0"
             Margin="8"
             ShowGridLines="False"

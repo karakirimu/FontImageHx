@@ -12,12 +12,12 @@ namespace FontBmpGen
     /// </summary>
     public partial class BitmapEditWindow : Window
     {
-        private BitmapEditViewModel viewModel;
+        private readonly BitmapEditViewModel viewModel;
         public string Result { get; private set; }
-        public BitmapEditWindow(string hex, int width, int height)
+        public BitmapEditWindow(char character, string hex, int width, int height)
         {
             InitializeComponent();
-            viewModel = new(hex, width, height);
+            viewModel = new(character, hex, width, height);
                     
             CreateCanvasGrid(width, height);
             DataContext = viewModel;
