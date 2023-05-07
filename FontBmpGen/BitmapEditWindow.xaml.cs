@@ -132,7 +132,7 @@ namespace FontBmpGen
             }
         }
 
-        private byte[][] ToggleToByte(ToggleButton[][] buttons)
+        private static byte[][] ToggleToByte(ToggleButton[][] buttons)
         {
             byte[][] result = new byte[buttons.Length][];
             for (int y = 0; y < buttons.Length; y++)

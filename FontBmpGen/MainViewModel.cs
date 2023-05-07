@@ -1,47 +1,40 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 
 namespace FontBmpGen
 {
-    internal class imageinfo
-    {
-        public char? Character { get; init; }
-        public string? Hex { get; init; }
-    }
-
-    internal class fontprofile
-    {
-        public int fontsize { get; init; }
-        public int charwidth { get; init; }
-        public int charheight { get; init; }
-        public string? fontfamily { get; init; }
-        public bool fontbold { get; init; }
-        public bool fontitalic { get; init; }
-        public bool fontunderline { get; init; }
-        public int binarythreshold { get; init; }
-        public string? text { get; init; }
-        public List<imageinfo>? image { get; init; }
-    }
-
     internal class MainViewModel : INotifyPropertyChanged
     {
+        private string _textString = "";
+        private ImageProperty _selectedImage;
+        private ToggleButton[][] _toggleButtonMap;
         private int _fontSize = 12;
-        private string _fontFamily = "Arial";
+        private string _fontFamily = "";
+        private string _hexView = "";
+        private bool _newLine;
         private bool _fontBold;
         private bool _fontItalic;
         private bool _fontUnderline;
-        private int _BinaryThreshold = 128;
-        private string _textString = "";
         private int _charWidth = 16;
         private int _charHeight = 16;
-        private ImageProperty _selectedImage;
+        private int _selectedIndex = -1;
+
+        public WindowCommand ClickUp { get; init; }
+        public WindowCommand ClickLeft { get; init; }
+        public WindowCommand ClickDown { get; init; }
+        public WindowCommand ClickRight { get; init; }
+        public WindowCommand ClickApply { get; init; }
+
+
 
         public ObservableCollection<ImageProperty> ConvertedImages { get; set; }
         public WindowCommand Close { get; init; }
@@ -50,36 +43,30 @@ namespace FontBmpGen
         public WindowCommand OpenProfile { get; init; }
         public WindowCommand SaveProfile { get; init; }
         public WindowCommand PasteAscii { get; init; }
+        public WindowCommand ImageUpdate { get; init; }
         public MainViewModel()
         {
             Close = new WindowCommand(
                         (_) => { System.Windows.Application.Current.Shutdown(); });
             SaveBitmap = new WindowCommand((_) =>
             {
+                if (ConvertedImages == null)
+                {
+                    return;
+                }
+
                 SaveFileDialog saveFileDialog = new()
                 {
                     Filter = "Bitmap Files (*.bmp)|*.bmp|All Files (*.*)|*.*",
                     DefaultExt = "bmp",
                     AddExtension = true,
-                    FileName = $"font_{FontFamily}"
+                    FileName = $"fontbitmap"
                 };
 
                 if (saveFileDialog.ShowDialog() == true)
                 {
-                    string filePath = saveFileDialog.FileName;
-                    FontAdjustConfig config = new()
-                    {
-                        SingleCharWidth = CharWidth,
-                        SingleCharHeight = CharHeight,
-                        FontFamily = FontFamily,
-                        FontSize = FontSize,
-                        Bold = FontBold,
-                        Italic = FontItalic,
-                        Underline = FontUnderline
-                    };
-
-                    BitmapOperation.GetImage(TextAreaString, config, BinaryThreshold)
-                        .Save(filePath, ImageFormat.Bmp);
+                    BitmapOperation.CombineImage(ConvertedImages)
+                    .Save(saveFileDialog.FileName, ImageFormat.Bmp);
                 }
             });
 
@@ -92,30 +79,27 @@ namespace FontBmpGen
                     Filter = "C Header (*.h)|*.h|All Files (*.*)|*.*",
                     DefaultExt = "h",
                     AddExtension = true,
-                    FileName = $"font_{FontFamily}"
+                    FileName = $"font_{DateTime.Now:yyyyMMddHHmmss}"
                 };
 
                 if (saveFileDialog.ShowDialog() == true)
                 {
                     using StreamWriter sw = new(saveFileDialog.FileName);
-
-                    sw.WriteLine($"//");
-                    sw.WriteLine($"// {FontFamily}");
-                    sw.WriteLine($"//");
-                    sw.WriteLine($"// Width: {CharWidth} Height: {CharHeight}");
-                    sw.WriteLine($"// FontSize: {FontSize} Bold: {FontBold} Italic: {FontItalic} Underline: {FontUnderline}");
-                    sw.WriteLine("");
-                    sw.WriteLine($"static uint8_t font_{FontFamily}[] = {{");
+                    sw.WriteLine("//");
+                    sw.WriteLine($"// {System.IO.Path.GetFileName(saveFileDialog.FileName)}");
+                    sw.WriteLine("//");
+                    sw.WriteLine(string.Empty);
+                    sw.WriteLine($"static uint8_t font[] = {{");
 
                     foreach (var im in ConvertedImages)
                     {
                         if (im != null)
                         {
-                            sw.WriteLine($"    {im.Hex}, // {im.Character}");
+                            sw.WriteLine($"    {im.Hex}, // {im.Character} {im.CharWidth}x{im.CharHeight}");
                         }
                     }
 
-                    sw.WriteLine($"}};\n");
+                    sw.WriteLine($"}};");
                     sw.Close();
                 }
             });
@@ -130,29 +114,31 @@ namespace FontBmpGen
                 if (openFileDialog.ShowDialog() == true)
                 {
                     string json = File.ReadAllText(openFileDialog.FileName);
-                    fontprofile? profile = JsonSerializer.Deserialize<fontprofile>(json);
-                    FontSize = profile.fontsize;
-                    FontBold = profile.fontbold;
-                    FontItalic = profile.fontitalic;
-                    FontUnderline = profile.fontunderline;
-                    FontFamily = profile.fontfamily;
-                    CharWidth = profile.charwidth;
-                    CharHeight = profile.charheight;
-                    BinaryThreshold = profile.binarythreshold;
-                    TextAreaString = profile.text;
+                    List<ImageProperty>? profile
+                        = JsonSerializer.Deserialize<List<ImageProperty>>(json);
 
                     ConvertedImages.Clear();
-
-                    foreach (var imageinfo in profile.image)
+                    if (profile == null)
                     {
-                        ConvertedImages.Add(new ImageProperty()
-                        {
-                            View = BitmapOperation.GetImageFromString(imageinfo.Hex, profile.charwidth, profile.charheight),
-                            Character = (char)imageinfo.Character,
-                            Hex = imageinfo.Hex
-                        });
+                        return;
                     }
 
+                    foreach (var imageinfo in profile)
+                    {
+                        imageinfo.ViewSource = BitmapOperation.FromSequential(
+                            imageinfo.Hex, imageinfo.CharWidth, imageinfo.CharHeight);
+
+                        if (imageinfo.NewLine)
+                        {
+                            _textString += "\n";
+                        }
+
+                        _textString += imageinfo.Character;
+
+                        ConvertedImages.Add(imageinfo);
+                    }
+
+                    OnPropertyChanged(nameof(TextAreaString));
                 }
             });
 
@@ -163,37 +149,12 @@ namespace FontBmpGen
                     Filter = "Profile (*.fbp)|*.fbp|All Files (*.*)|*.*",
                     DefaultExt = "fbp",
                     AddExtension = true,
-                    FileName = $"profile_{FontFamily}"
+                    FileName = $"profile_font"
                 };
 
                 if (saveFileDialog.ShowDialog() == true)
                 {
-                    List<imageinfo> images = new();
-
-                    foreach (var im in ConvertedImages)
-                    {
-                        images.Add(new imageinfo()
-                        {
-                            Character = im.Character,
-                            Hex = im.Hex,
-                        });
-                    }
-
-                    fontprofile profile = new()
-                    {
-                        fontsize = _fontSize,
-                        fontbold = _fontBold,
-                        fontitalic = _fontItalic,
-                        fontunderline = _fontUnderline,
-                        fontfamily = _fontFamily,
-                        charwidth = _charWidth,
-                        charheight = _charHeight,
-                        binarythreshold = _BinaryThreshold,
-                        text = _textString,
-                        image = images
-                    };
-
-                    string json = JsonSerializer.Serialize(profile);
+                    string json = JsonSerializer.Serialize(ConvertedImages);
                     File.WriteAllText(saveFileDialog.FileName, json);
                 }
             });
@@ -210,22 +171,100 @@ namespace FontBmpGen
 
                 TextAreaString = ascii;
             });
+
+            ClickUp = new WindowCommand((_) =>
+            {
+                GridBitmap.Move(ToggleButtonMap, MoveDirection.Up);
+            });
+
+            ClickLeft = new WindowCommand((_) =>
+            {
+                GridBitmap.Move(ToggleButtonMap, MoveDirection.Left);
+            });
+
+            ClickDown = new WindowCommand((_) =>
+            {
+                GridBitmap.Move(ToggleButtonMap, MoveDirection.Down);
+            });
+
+            ClickRight = new WindowCommand((_) =>
+            {
+                GridBitmap.Move(ToggleButtonMap, MoveDirection.Right);
+            });
+
+            ImageUpdate = new WindowCommand((_) => 
+            {
+                if (ConvertedImages.Contains(LastSelectedImage))
+                {
+                    byte[][] bitmapbyte = GridBitmap.ToggleToByte(ToggleButtonMap);
+                    string hexdata = BitmapOperation.ToSequential(
+                        BitmapOperation.ByteToBit(bitmapbyte));
+                    int index = ConvertedImages.IndexOf(LastSelectedImage);
+
+                    //ImageProperty wrap = new()
+                    //{
+                    //    ViewSource = BitmapOperation.FromSequential(
+                    //        hexdata,
+                    //        SelectedImage.CharWidth,
+                    //        SelectedImage.CharHeight),
+                    //    Character = SelectedImage.Character,
+                    //    IsSelected = SelectedImage.IsSelected,
+                    //    FontSize = SelectedImage.FontSize,
+                    //    FontFamily = SelectedImage.FontFamily,
+                    //    FontBold = SelectedImage.FontBold,
+                    //    FontItalic = SelectedImage.FontItalic,
+                    //    FontUnderline = SelectedImage.FontUnderline,
+                    //    NewLine = SelectedImage.NewLine,
+                    //    CharWidth = SelectedImage.CharWidth,
+                    //    CharHeight = SelectedImage.CharHeight,
+                    //    Hex = hexdata,
+                    //    BinaryThreshold = SelectedImage.BinaryThreshold
+                    //};
+
+                    ImageProperty w = ConvertedImages[index].ShallowCopy();
+                    w.ViewSource = BitmapOperation.FromSequential(
+                            hexdata,
+                            LastSelectedImage.CharWidth,
+                            LastSelectedImage.CharHeight);
+                    w.Hex = hexdata;
+
+                    ConvertedImages[index] = w;
+                    LastSelectedImage = w;
+                    //OnPropertyChanged(nameof(ImageUpdate));
+                }
+
+            });
         }
 
-        public int FontSize
+        public ToggleButton[][] ToggleButtonMap
         {
-            get => _fontSize;
+            get => _toggleButtonMap;
             set
             {
-                if (_fontSize != value)
+                if (_toggleButtonMap != value)
                 {
-                    _fontSize = value;
+                    _toggleButtonMap = value;
                     OnPropertyChanged();
                 }
             }
         }
 
-        public string FontFamily
+        private void UpdateImageProperty(Action<ImageProperty> updateAction)
+        {
+            if (LastSelectedIndex < 0)
+            {
+                return;
+            }
+
+            var i = ConvertedImages[LastSelectedIndex].ShallowCopy();
+            updateAction(i);
+            i.ViewSource = BitmapOperation.GetCharacterImage(i);
+            ConvertedImages[LastSelectedIndex] = i;
+            _selectedImage = i;
+            OnPropertyChanged(nameof(LastSelectedImage));
+        }
+
+        public string EditFontFamily
         {
             get => _fontFamily;
             set
@@ -233,12 +272,38 @@ namespace FontBmpGen
                 if (_fontFamily != value)
                 {
                     _fontFamily = value;
-                    OnPropertyChanged();
+                    UpdateImageProperty((i) => { i.FontFamily = value; });
                 }
             }
         }
 
-        public bool FontBold
+        public int EditFontSize
+        {
+            get => _fontSize;
+            set
+            {
+                if (_fontSize != value)
+                {
+                    _fontSize = value;
+                    UpdateImageProperty((i) => { i.FontSize = value; });
+                }
+            }
+        }
+
+        public bool EditNewLine
+        {
+            get => _newLine;
+            set
+            {
+                if (_newLine != value)
+                {
+                    _newLine = value;
+                    UpdateImageProperty((i) => { i.NewLine = value; });
+                }
+            }
+        }
+
+        public bool EditFontBold
         {
             get => _fontBold;
             set
@@ -246,12 +311,12 @@ namespace FontBmpGen
                 if (_fontBold != value)
                 {
                     _fontBold = value;
-                    OnPropertyChanged();
+                    UpdateImageProperty((i) => { i.FontBold = value; });
                 }
             }
         }
 
-        public bool FontItalic
+        public bool EditFontItalic
         {
             get => _fontItalic;
             set
@@ -259,12 +324,12 @@ namespace FontBmpGen
                 if (_fontItalic != value)
                 {
                     _fontItalic = value;
-                    OnPropertyChanged();
+                    UpdateImageProperty((i) => { i.FontItalic = value; });
                 }
             }
         }
 
-        public bool FontUnderline
+        public bool EditFontUnderline
         {
             get => _fontUnderline;
             set
@@ -272,20 +337,45 @@ namespace FontBmpGen
                 if (_fontUnderline != value)
                 {
                     _fontUnderline = value;
-                    OnPropertyChanged();
+                    UpdateImageProperty((i) => { i.FontUnderline = value; });
                 }
             }
         }
 
-        public int BinaryThreshold
+        public int EditCharWidth
         {
-            get => _BinaryThreshold;
+            get => _charWidth;
             set
             {
-                if (_BinaryThreshold != value)
+                if (_charWidth != value)
                 {
-                    _BinaryThreshold = value;
-                    OnPropertyChanged();
+                    _charWidth = value;
+                    UpdateImageProperty((i) => { i.CharWidth = value; });
+                }
+            }
+        }
+        public int EditCharHeight
+        {
+            get => _charHeight;
+            set
+            {
+                if (_charHeight != value)
+                {
+                    _charHeight = value;
+                    UpdateImageProperty((i) => { i.CharHeight = value; });
+                }
+            }
+        }
+
+        public string EditHexView
+        {
+            get => _hexView;
+            set
+            {
+                if (_hexView != value)
+                {
+                    _hexView = value;
+                    UpdateImageProperty((i) => { i.Hex = value; });
                 }
             }
         }
@@ -300,40 +390,53 @@ namespace FontBmpGen
             }
         }
 
-        public int CharWidth
-        {
-            get => _charWidth;
-            set
-            {
-                if (_charWidth != value)
-                {
-                    _charWidth = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        public int CharHeight
-        {
-            get => _charHeight;
-            set
-            {
-                if (_charHeight != value)
-                {
-                    _charHeight = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public ImageProperty SelectedImage
+        public ImageProperty LastSelectedImage
         {
             get => _selectedImage;
             set
             {
+                if(value == null)
+                {
+                    return;
+                }
+
                 if (_selectedImage != value)
                 {
                     _selectedImage = value;
+                    _fontFamily = value.FontFamily;
+                    _fontSize = value.FontSize;
+                    _fontBold = value.FontBold;
+                    _fontItalic = value.FontItalic;
+                    _fontUnderline = value.FontUnderline;
+                    _charWidth = value.CharWidth;
+                    _charHeight = value.CharHeight;
+                    _hexView = value.Hex;
+                    _newLine = value.NewLine;
+                    OnPropertyChanged(nameof(EditFontFamily));
+                    OnPropertyChanged(nameof(EditFontSize));
+                    OnPropertyChanged(nameof(EditFontBold));
+                    OnPropertyChanged(nameof(EditFontItalic));
+                    OnPropertyChanged(nameof(EditFontUnderline));
+                    OnPropertyChanged(nameof(EditCharWidth));
+                    OnPropertyChanged(nameof(EditCharHeight));
+                    OnPropertyChanged(nameof(EditHexView));
+                    OnPropertyChanged(nameof(EditNewLine));
+                    OnPropertyChanged();
+                    return;
                 }
+            }
+        }
+
+        public int LastSelectedIndex
+        {
+            get => _selectedIndex;
+            set
+            {
+                if(value < 0)
+                {
+                    return;
+                }
+                _selectedIndex = value;
             }
         }
 

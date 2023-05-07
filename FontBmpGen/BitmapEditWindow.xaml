@@ -94,12 +94,22 @@
         <StackPanel
             Grid.Row="0"
             Grid.Column="1"
-            Margin="8"
+            Margin="4 8"
             Orientation="Vertical">
-            <Button Content="Up" Command="{Binding ClickUp}" />
-            <Button Content="Left" Command="{Binding ClickLeft}" />
-            <Button Content="Right" Command="{Binding ClickRight}" />
-            <Button Content="Down" Command="{Binding ClickDown}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Shift" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <Button Grid.Column="1" Margin="4 0" ToolTip="Up" Content="↑" Command="{Binding ClickUp}" />
+                <Button Grid.Column="2" Margin="4 0" ToolTip="Down" Content="↓" Command="{Binding ClickDown}" />
+                <Button Grid.Column="3" Margin="4 0" ToolTip="Left" Content="←" Command="{Binding ClickLeft}" />
+                <Button Grid.Column="4" Margin="4 0" ToolTip="Right" Content="→" Command="{Binding ClickRight}" />
+            </Grid>
         </StackPanel>
 
         <StackPanel

@@ -33,18 +33,11 @@ namespace FontBmpGen
         public bool Underline { get; set; }
     }
 
-    public class ImageProperty
-    {
-        public BitmapImage? View { get; set; }
-        public char Character { get; set; }
-        public string? Hex { get; set; }
-    }
-
     public class BitmapOperation
     {
         public BitmapOperation() { }
 
-        protected static BitmapImage ConvertImage(Bitmap source)
+        public static BitmapImage ConvertImage(Bitmap source)
         {
             // BitmapをImageSourceに変換する
             BitmapImage bitmapImage = new();
@@ -65,6 +58,22 @@ namespace FontBmpGen
 
             // ImageにImageSourceを設定する
             return bitmapImage;
+        }
+
+        public static Bitmap GetCharacterImage(ImageProperty property)
+        {
+            FontAdjustConfig config = new FontAdjustConfig()
+            {
+                FontFamily = property.FontFamily,
+                FontSize = property.FontSize,
+                Bold = property.FontBold,
+                Italic = property.FontItalic,
+                Underline = property.FontUnderline,
+                SingleCharWidth = property.CharWidth,
+                SingleCharHeight = property.CharHeight
+            };
+
+            return DrawCharacter(property.Character, config);
         }
 
         protected static Bitmap DrawCharacter(char c, FontAdjustConfig config)
@@ -99,11 +108,6 @@ namespace FontBmpGen
             g.DrawString(c.ToString(), font, brush, x, y);
 
             return bmp;
-        }
-
-        public static BitmapImage DrawTextInSpecifiedSize(string text, FontAdjustConfig config, int binaryThreshold)
-        {
-            return ConvertImage(GetImage(text, config, binaryThreshold));
         }
 
         public static Bitmap GetImage(string text, FontAdjustConfig config, int binaryThreshold)
@@ -179,7 +183,7 @@ namespace FontBmpGen
             return result.Remove(result.Length - 1);
         }
 
-        protected static byte[][] ToMiniBitmap(string sequential, int width, int height)
+        protected static byte[][] ToShrinkedBitmap(string sequential, int width, int height)
         {
             string[] hexValues = sequential.Split(',');
             int w = width / 8 + ((width % 8 > 0) ? 1 : 0);
@@ -203,14 +207,14 @@ namespace FontBmpGen
         }
 
 
-        public static BitmapImage GetImageFromString(string hex, int charwidth, int charheight)
-        {
-            return ConvertImage(FromSequential(hex, charwidth, charheight));
-        }
+        //public static BitmapImage GetImageFromString(string hex, int charwidth, int charheight)
+        //{
+        //    return ConvertImage(FromSequential(hex, charwidth, charheight));
+        //}
 
         public static Bitmap FromSequential(string hex, int charwidth, int charheight)
         {
-            byte[][] image = ToMiniBitmap(hex, charwidth, charheight);
+            byte[][] image = ToShrinkedBitmap(hex, charwidth, charheight);
             byte[][] bytedata = BitToByte(image, charwidth);
 
             Bitmap bitmap = new(charwidth, charheight);
@@ -226,7 +230,7 @@ namespace FontBmpGen
             return bitmap;
         }
 
-        public static List<ImageProperty> GetImageList(string text, FontAdjustConfig config, int binaryThreshold)
+        public static List<ImageProperty> CreateImageList(string text)
         {
             var result = new List<ImageProperty>();
             int offsetX = 0;
@@ -244,52 +248,93 @@ namespace FontBmpGen
                 }
                 if (c == '\n')
                 {
-                    offsetY += config.SingleCharHeight;
+                    if(result.Count > 0)
+                    {
+                        offsetY += result[^1].CharHeight;
+                    }
                     offsetX = 0;
                     continue;
                 }
+                ImageProperty prop = new();
 
-                Bitmap bm = BinarizeOtsu(DrawCharacter(c, config), binaryThreshold);
-
-                ImageProperty prop = new()
+                FontAdjustConfig config = new()
                 {
-                    View = ConvertImage(bm),
-                    Character = c,
-                    Hex = ToSequential(BinaryImageToHexBytes(bm))
+                    SingleCharWidth = prop.CharWidth,
+                    SingleCharHeight = prop.CharHeight,
+                    FontFamily = prop.FontFamily,
+                    FontSize = prop.FontSize,
+                    Bold = prop.FontBold,
+                    Italic = prop.FontItalic,
+                    Underline = prop.FontUnderline
                 };
+
+                Bitmap bm = BinarizeOtsu(DrawCharacter(c, config), prop.BinaryThreshold);
+
+                prop.ViewSource = bm;
+                prop.Character = c;
+                prop.Hex = ToSequential(BinaryImageToHexBytes(bm));
+                prop.NewLine = (offsetX == 0 && offsetY > 0);
+                
                 result.Add(prop);
-                offsetX += config.SingleCharWidth;
+                offsetX += prop.CharWidth;
             }
 
             return result;
         }
 
-        //public static Bitmap GetImage(string text, string fontFamily, int fontsize, int binaryThreshold)
-        //{
-        //    // 文字のサイズを取得
-        //    FormattedText formattedText = new(
-        //        text,
-        //        CultureInfo.CurrentCulture,
-        //        FlowDirection.LeftToRight,
-        //        new Typeface(new System.Windows.Media.FontFamily(fontFamily),
-        //                        FontStyles.Normal, FontWeights.Normal, FontStretches.Normal),
-        //        fontsize,
-        //        System.Windows.Media.Brushes.Black, 1.00);
+        /// <summary>
+        /// Combine single character image
+        /// </summary>
+        /// <param name="characters">bitmapped character</param>
+        /// <returns></returns>
+        public static Bitmap CombineImage(IReadOnlyList<ImageProperty> characters)
+        {
+            int width = 0;
+            int height = characters[0].ViewSource.Height;
 
-        //    // フォントファイルを読み込む
-        //    Font font = new(fontFamily, fontsize);
+            int tmpw = 0;
+            foreach (var c in characters)
+            {
+                if (c.NewLine)
+                {
+                    height += c.ViewSource.Height;
+                    width = tmpw > width ? tmpw : width;
+                    tmpw = 0;
+                    continue;
+                }
+                tmpw += c.ViewSource.Width;
+            }
 
-        //    // 文字を描画する
-        //    Bitmap bmp = new(
-        //        (int)(Math.Ceiling(formattedText.Width) * 1.5),
-        //        (int)(Math.Ceiling(formattedText.Height) * 1.5));
-        //    Graphics g = Graphics.FromImage(bmp);
-        //    g.Clear(System.Drawing.Color.Black);
-        //    g.DrawString(text, font, System.Drawing.Brushes.White, new PointF(0, 0));
+            width = tmpw > width ? tmpw : width;
 
-        //    return Binarize(bmp, binaryThreshold);
-        //}
+            var result = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            using var g = Graphics.FromImage(result);
+            int offsetX = 0;
+            int offsetY = 0;
+            g.Clear(Color.Black);
+            foreach (var c in characters)
+            {
+                if (c.NewLine)
+                {
+                    offsetY += c.ViewSource.Height;
+                    offsetX = 0;
+                }
 
+                g.DrawImage(
+                    c.ViewSource,
+                    new Rectangle(offsetX, offsetY, c.ViewSource.Width, c.ViewSource.Height));
+                offsetX += c.ViewSource.Width;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Simple binarization
+        /// </summary>
+        /// <param name="bitmap">Bitmap image</param>
+        /// <param name="threshold">binarization threshold value</param>
+        /// <returns>Binarized bitmap</returns>
         public static Bitmap Binarize(Bitmap bitmap, int threshold)
         {
             Bitmap binarized = new(bitmap.Width, bitmap.Height);
@@ -308,28 +353,70 @@ namespace FontBmpGen
             return binarized;
         }
 
-        public static double Variance(double[] data)
-        {
-            double mean = data.Sum() / data.Length;
-            double sumOfSquaredDifferences = 0;
-
-            foreach (double value in data)
-            {
-                double difference = value - mean;
-                double squaredDifference = difference * difference;
-                sumOfSquaredDifferences += squaredDifference;
-            }
-
-            double variance = sumOfSquaredDifferences / data.Length;
-            return variance;
-        }
-
+        /// <summary>
+        /// Basic Otsu binarization
+        /// </summary>
+        /// <param name="bitmap">Colored bitmap</param>
+        /// <param name="threshold">Initial value</param>
+        /// <returns>Binarized bitmap</returns>
         public static Bitmap BinarizeOtsu(Bitmap bitmap, int threshold)
         {
+            var variance = (double[] data) => {
+                double mean = data.Sum() / data.Length;
+                double sumOfSquaredDifferences = 0;
+
+                foreach (double value in data)
+                {
+                    double difference = value - mean;
+                    double squaredDifference = difference * difference;
+                    sumOfSquaredDifferences += squaredDifference;
+                }
+
+                double variance = sumOfSquaredDifferences / data.Length;
+                return variance;
+            };
+
+            static int[] BinarizeToIntArray(Bitmap bitmap, int threshold)
+            {
+                int[] result = new int[bitmap.Height * bitmap.Width];
+
+                int i = 0;
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    for (int x = 0; x < bitmap.Width; x++)
+                    {
+                        System.Drawing.Color c = bitmap.GetPixel(x, y);
+                        int gray = (int)(c.R * 0.299 + c.G * 0.587 + c.B * 0.114);
+                        result[i] = gray > threshold ? 1 : 0;
+                        i++;
+                    }
+                }
+
+                return result;
+            };
+
+            static double[] BitmapSequential(Bitmap bitmap)
+            {
+                double[] result = new double[bitmap.Height * bitmap.Width];
+
+                int i = 0;
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    for (int x = 0; x < bitmap.Width; x++)
+                    {
+                        System.Drawing.Color c = bitmap.GetPixel(x, y);
+                        result[i] = c.R * 0.299 + c.G * 0.587 + c.B * 0.114;
+                        i++;
+                    }
+                }
+
+                return result;
+            }
+
             int pixels_whole = bitmap.Width * bitmap.Height;
 
             int pixels_1 = 0;
-            int[] thresholded_im = BinarizeSequential(bitmap, threshold);
+            int[] thresholded_im = BinarizeToIntArray(bitmap, threshold);
             pixels_1 = thresholded_im.Count((val) => val == 1);
 
             double weight1 = pixels_1 / pixels_whole;
@@ -344,51 +431,19 @@ namespace FontBmpGen
             double[] val_pixels1 = im.Where((val, idx) => thresholded_im[idx] == 1).ToArray();
             double[] val_pixels0 = im.Where((val, idx) => thresholded_im[idx] == 0).ToArray();
 
-            double var1 = val_pixels1.Length > 0 ? Variance(val_pixels1) : 0;
-            double var0 = val_pixels0.Length > 0 ? Variance(val_pixels0) : 0;
+            double var1 = val_pixels1.Length > 0 ? variance(val_pixels1) : 0;
+            double var0 = val_pixels0.Length > 0 ? variance(val_pixels0) : 0;
 
             int criteria = (int)(weight0 * var0 + weight1 * var1);
 
             return Binarize(bitmap, criteria);
         }
 
-        protected static double[] BitmapSequential(Bitmap bitmap)
-        {
-            double[] result = new double[bitmap.Height * bitmap.Width];
-
-            int i = 0;
-            for (int y = 0; y < bitmap.Height; y++)
-            {
-                for (int x = 0; x < bitmap.Width; x++)
-                {
-                    System.Drawing.Color c = bitmap.GetPixel(x, y);
-                    result[i] = c.R * 0.299 + c.G * 0.587 + c.B * 0.114;
-                    i++;
-                }
-            }
-
-            return result;
-        }
-
-        protected static int[] BinarizeSequential(Bitmap bitmap, int threshold)
-        {
-            int[] result = new int[bitmap.Height * bitmap.Width];
-
-            int i = 0;
-            for (int y = 0; y < bitmap.Height; y++)
-            {
-                for (int x = 0; x < bitmap.Width; x++)
-                {
-                    System.Drawing.Color c = bitmap.GetPixel(x, y);
-                    int gray = (int)(c.R * 0.299 + c.G * 0.587 + c.B * 0.114);
-                    result[i] = gray > threshold ? 1 : 0;
-                    i++;
-                }
-            }
-
-            return result;
-        }
-
+        /// <summary>
+        /// Convert a Bitmap image to a 2-dimensional byte array.
+        /// </summary>
+        /// <param name="bitmap">Bitmap image</param>
+        /// <returns>2-dimensional byte array</returns>
         public static byte[][] BinaryImageToHexBytes(Bitmap bitmap)
         {
             byte[][] result = new byte[bitmap.Height][];
@@ -413,6 +468,12 @@ namespace FontBmpGen
             return ByteToBit(result);
         }
 
+        /// <summary>
+        /// Convert 1 byte binarized columns to 8 byte buffer.
+        /// </summary>
+        /// <param name="bitmap">binarized shlinked bitmap</param>
+        /// <param name="width">configured width</param>
+        /// <returns></returns>
         protected static byte[][] BitToByte(byte[][] bitmap, int width)
         {
             int w = width;
@@ -435,6 +496,12 @@ namespace FontBmpGen
             return result;
         }
 
+        /// <summary>
+        /// Shrinks a column of a binarized 8-byte buffer to 1 byte.
+        /// If there is a remainder in multiples of 8, align to the left.
+        /// </summary>
+        /// <param name="bitmap">binarized bitmap</param>
+        /// <returns></returns>
         public static byte[][] ByteToBit(byte[][] bitmap)
         {
             int w = (bitmap[0].Length / 8) + Convert.ToInt32(bitmap[0].Length % 8 > 0);
