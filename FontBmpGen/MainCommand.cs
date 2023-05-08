@@ -7,7 +7,7 @@ namespace FontBmpGen
     {
         public delegate void ExecuteDelegate(object? param);
         public event EventHandler? CanExecuteChanged;
-        private ExecuteDelegate _delegate;
+        private readonly ExecuteDelegate _delegate;
 
         public WindowCommand(ExecuteDelegate execute)
         {

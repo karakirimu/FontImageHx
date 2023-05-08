@@ -1,13 +1,8 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
+using System.Windows;
 using System.Windows.Controls.Primitives;
 
 namespace FontBmpGen
@@ -16,7 +11,7 @@ namespace FontBmpGen
     {
         private string _textString = "";
         private ImageProperty _selectedImage;
-        private ToggleButton[][] _toggleButtonMap;
+        private ToggleButton[][]? _toggleButtonMap;
         private int _fontSize = 12;
         private string _fontFamily = "";
         private string _hexView = "";
@@ -27,213 +22,172 @@ namespace FontBmpGen
         private int _charWidth = 16;
         private int _charHeight = 16;
         private int _selectedIndex = -1;
+        private bool? _allSelected = false;
 
         public WindowCommand ClickUp { get; init; }
         public WindowCommand ClickLeft { get; init; }
         public WindowCommand ClickDown { get; init; }
         public WindowCommand ClickRight { get; init; }
-        public WindowCommand ClickApply { get; init; }
-
-
 
         public ObservableCollection<ImageProperty> ConvertedImages { get; set; }
         public WindowCommand Close { get; init; }
         public WindowCommand SaveBitmap { get; init; }
         public WindowCommand SaveCHex { get; init; }
+        public WindowCommand NewProfile { get; init; }
         public WindowCommand OpenProfile { get; init; }
         public WindowCommand SaveProfile { get; init; }
-        public WindowCommand PasteAscii { get; init; }
+        //public WindowCommand PasteAscii { get; init; }
         public WindowCommand ImageUpdate { get; init; }
         public MainViewModel()
         {
-            Close = new WindowCommand(
-                        (_) => { System.Windows.Application.Current.Shutdown(); });
+            ConvertedImages = new ObservableCollection<ImageProperty>();
+            _selectedImage = new ImageProperty();
+
+            Close = new WindowCommand((_) =>
+            {
+                Application.Current.Shutdown();
+            });
+
             SaveBitmap = new WindowCommand((_) =>
             {
-                if (ConvertedImages == null)
+                OpenSave.ExportToBitmap(ConvertedImages);
+            });
+
+            SaveCHex = new WindowCommand((_) =>
+            {
+                OpenSave.ExportToCHeader(ConvertedImages);
+            });
+
+            NewProfile = new WindowCommand((_) =>
+            {
+                TextWizard textWizard = new()
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                if (textWizard.ShowDialog() == false)
                 {
                     return;
                 }
 
-                SaveFileDialog saveFileDialog = new()
+                ConvertedImages.Clear();
+                foreach(var im in textWizard.Result)
                 {
-                    Filter = "Bitmap Files (*.bmp)|*.bmp|All Files (*.*)|*.*",
-                    DefaultExt = "bmp",
-                    AddExtension = true,
-                    FileName = $"fontbitmap"
-                };
-
-                if (saveFileDialog.ShowDialog() == true)
-                {
-                    BitmapOperation.CombineImage(ConvertedImages)
-                    .Save(saveFileDialog.FileName, ImageFormat.Bmp);
-                }
-            });
-
-            ConvertedImages = new ObservableCollection<ImageProperty>();
-
-            SaveCHex = new WindowCommand((_) =>
-            {
-                SaveFileDialog saveFileDialog = new()
-                {
-                    Filter = "C Header (*.h)|*.h|All Files (*.*)|*.*",
-                    DefaultExt = "h",
-                    AddExtension = true,
-                    FileName = $"font_{DateTime.Now:yyyyMMddHHmmss}"
-                };
-
-                if (saveFileDialog.ShowDialog() == true)
-                {
-                    using StreamWriter sw = new(saveFileDialog.FileName);
-                    sw.WriteLine("//");
-                    sw.WriteLine($"// {System.IO.Path.GetFileName(saveFileDialog.FileName)}");
-                    sw.WriteLine("//");
-                    sw.WriteLine(string.Empty);
-                    sw.WriteLine($"static uint8_t font[] = {{");
-
-                    foreach (var im in ConvertedImages)
-                    {
-                        if (im != null)
-                        {
-                            sw.WriteLine($"    {im.Hex}, // {im.Character} {im.CharWidth}x{im.CharHeight}");
-                        }
-                    }
-
-                    sw.WriteLine($"}};");
-                    sw.Close();
+                    im.PropertyChanged += OnImagePropertyChanged;
+                    ConvertedImages.Add(im);
                 }
             });
 
             OpenProfile = new WindowCommand((_) =>
             {
-                OpenFileDialog openFileDialog = new()
+                var profile = OpenSave.OpenProfile();
+
+                if(profile.Count == 0)
                 {
-                    Filter = "Profile (*.fbp)|*.fbp|All Files (*.*)|*.*",
-                };
-
-                if (openFileDialog.ShowDialog() == true)
-                {
-                    string json = File.ReadAllText(openFileDialog.FileName);
-                    List<ImageProperty>? profile
-                        = JsonSerializer.Deserialize<List<ImageProperty>>(json);
-
-                    ConvertedImages.Clear();
-                    if (profile == null)
-                    {
-                        return;
-                    }
-
-                    foreach (var imageinfo in profile)
-                    {
-                        imageinfo.ViewSource = BitmapOperation.FromSequential(
-                            imageinfo.Hex, imageinfo.CharWidth, imageinfo.CharHeight);
-
-                        if (imageinfo.NewLine)
-                        {
-                            _textString += "\n";
-                        }
-
-                        _textString += imageinfo.Character;
-
-                        ConvertedImages.Add(imageinfo);
-                    }
-
-                    OnPropertyChanged(nameof(TextAreaString));
+                    return;
                 }
+
+                ConvertedImages.Clear();
+
+                foreach (var im in profile)
+                {
+                    im.ViewSource = BitmapOperation.FromSequential(
+                        im.Hex, im.CharWidth, im.CharHeight);
+
+                    if (im.NewLine)
+                    {
+                        _textString += "\n";
+                    }
+
+                    _textString += im.Character;
+
+                    im.PropertyChanged += OnImagePropertyChanged;
+                    ConvertedImages.Add(im);
+                }
+
+                OnPropertyChanged(nameof(TextAreaString));
             });
 
             SaveProfile = new WindowCommand((_) =>
             {
-                SaveFileDialog saveFileDialog = new()
-                {
-                    Filter = "Profile (*.fbp)|*.fbp|All Files (*.*)|*.*",
-                    DefaultExt = "fbp",
-                    AddExtension = true,
-                    FileName = $"profile_font"
-                };
-
-                if (saveFileDialog.ShowDialog() == true)
-                {
-                    string json = JsonSerializer.Serialize(ConvertedImages);
-                    File.WriteAllText(saveFileDialog.FileName, json);
-                }
+                OpenSave.SaveProfile(ConvertedImages);
             });
 
-            PasteAscii = new WindowCommand((_) =>
-            {
-                const string ascii
-                    = " !\"#$%&'()*+,-./\n" +
-                      "0123456789:;<=>?\n" +
-                      "@ABCDEFGHIJKLMNO\n" +
-                      "PQRSTUVWXYZ[\\]^_\n" +
-                      "`abcdefghijklmno\n" +
-                      "pqrstuvwxyz{|}~";
+            //PasteAscii = new WindowCommand((_) =>
+            //{
+            //    const string ascii
+            //        = " !\"#$%&'()*+,-./\n" +
+            //          "0123456789:;<=>?\n" +
+            //          "@ABCDEFGHIJKLMNO\n" +
+            //          "PQRSTUVWXYZ[\\]^_\n" +
+            //          "`abcdefghijklmno\n" +
+            //          "pqrstuvwxyz{|}~";
 
-                TextAreaString = ascii;
-            });
+            //    TextAreaString = ascii;
+            //});
 
             ClickUp = new WindowCommand((_) =>
             {
-                GridBitmap.Move(ToggleButtonMap, MoveDirection.Up);
+                BitmapCanvas.Move(ToggleButtonMap, MoveDirection.Up);
             });
 
             ClickLeft = new WindowCommand((_) =>
             {
-                GridBitmap.Move(ToggleButtonMap, MoveDirection.Left);
+                BitmapCanvas.Move(ToggleButtonMap, MoveDirection.Left);
             });
 
             ClickDown = new WindowCommand((_) =>
             {
-                GridBitmap.Move(ToggleButtonMap, MoveDirection.Down);
+                BitmapCanvas.Move(ToggleButtonMap, MoveDirection.Down);
             });
 
             ClickRight = new WindowCommand((_) =>
             {
-                GridBitmap.Move(ToggleButtonMap, MoveDirection.Right);
+                BitmapCanvas.Move(ToggleButtonMap, MoveDirection.Right);
             });
 
             ImageUpdate = new WindowCommand((_) => 
             {
-                if (ConvertedImages.Contains(LastSelectedImage))
+                if(LastSelectedIndex < 0)
                 {
-                    byte[][] bitmapbyte = GridBitmap.ToggleToByte(ToggleButtonMap);
-                    string hexdata = BitmapOperation.ToSequential(
-                        BitmapOperation.ByteToBit(bitmapbyte));
-                    int index = ConvertedImages.IndexOf(LastSelectedImage);
-
-                    //ImageProperty wrap = new()
-                    //{
-                    //    ViewSource = BitmapOperation.FromSequential(
-                    //        hexdata,
-                    //        SelectedImage.CharWidth,
-                    //        SelectedImage.CharHeight),
-                    //    Character = SelectedImage.Character,
-                    //    IsSelected = SelectedImage.IsSelected,
-                    //    FontSize = SelectedImage.FontSize,
-                    //    FontFamily = SelectedImage.FontFamily,
-                    //    FontBold = SelectedImage.FontBold,
-                    //    FontItalic = SelectedImage.FontItalic,
-                    //    FontUnderline = SelectedImage.FontUnderline,
-                    //    NewLine = SelectedImage.NewLine,
-                    //    CharWidth = SelectedImage.CharWidth,
-                    //    CharHeight = SelectedImage.CharHeight,
-                    //    Hex = hexdata,
-                    //    BinaryThreshold = SelectedImage.BinaryThreshold
-                    //};
-
-                    ImageProperty w = ConvertedImages[index].ShallowCopy();
-                    w.ViewSource = BitmapOperation.FromSequential(
-                            hexdata,
-                            LastSelectedImage.CharWidth,
-                            LastSelectedImage.CharHeight);
-                    w.Hex = hexdata;
-
-                    ConvertedImages[index] = w;
-                    LastSelectedImage = w;
-                    //OnPropertyChanged(nameof(ImageUpdate));
+                    return;
                 }
 
+                byte[][] bitmapbyte = BitmapCanvas.ToggleToByte(ToggleButtonMap);
+                string hexdata = BitmapOperation.ToSequential(
+                    BitmapOperation.ByteToBit(bitmapbyte));
+                ImageProperty w = ConvertedImages[LastSelectedIndex].ShallowCopy();
+                w.ViewSource = BitmapOperation.FromSequential(
+                        hexdata,
+                        LastSelectedImage.CharWidth,
+                        LastSelectedImage.CharHeight);
+                w.Hex = hexdata;
+
+                ConvertedImages[LastSelectedIndex] = w;
+                LastSelectedImage = w;
             });
+        }
+
+        private void OnImagePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            int counter = 0;
+            foreach (var i in ConvertedImages)
+            {
+                counter += i.IsSelected ? 1 : -1;
+            }
+
+            if(counter == ConvertedImages.Count)
+            {
+                AllSelected = true;
+                return;
+            }
+
+            if(counter == -ConvertedImages.Count)
+            {
+                AllSelected = false;
+                return;
+            }
+
+            AllSelected = null;
         }
 
         public ToggleButton[][] ToggleButtonMap
@@ -437,6 +391,19 @@ namespace FontBmpGen
                     return;
                 }
                 _selectedIndex = value;
+            }
+        }
+
+        public bool? AllSelected
+        {
+            get => _allSelected;
+            set
+            {
+                if (_allSelected != value)
+                {
+                    _allSelected = value;
+                    OnPropertyChanged();
+                }
             }
         }
 

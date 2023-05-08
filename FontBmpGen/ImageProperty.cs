@@ -1,10 +1,12 @@
-﻿using System.Drawing;
+﻿using System.ComponentModel;
+using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using System.Windows.Media.Imaging;
 
 namespace FontBmpGen
 {
-    public class ImageProperty
+    public class ImageProperty : INotifyPropertyChanged
     {
         public ImageProperty()
         {
@@ -20,13 +22,22 @@ namespace FontBmpGen
             Hex = string.Empty;
             BinaryThreshold = 128;
         }
-        public ImageProperty ShallowCopy()
-        {
-            return (ImageProperty)MemberwiseClone();
-        }
 
         [JsonIgnore]
-        public bool IsSelected { get; set; }
+        private bool _isSelected;
+        [JsonIgnore]
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged(nameof(IsSelected));
+                }
+            }
+        }
         [JsonIgnore]
         private Bitmap _bitmap = new(1, 1);
         [JsonIgnore]
@@ -53,5 +64,14 @@ namespace FontBmpGen
         public int BinaryThreshold { get; set; }
         public bool NewLine { get; set; }
         public bool Locked { get; set; }
+
+        public ImageProperty ShallowCopy()
+        {
+            return (ImageProperty)MemberwiseClone();
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

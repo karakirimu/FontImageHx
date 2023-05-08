@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 using System.Windows.Controls.Primitives;
 
 namespace FontBmpGen
@@ -16,9 +11,9 @@ namespace FontBmpGen
         Right
     }
 
-    internal class GridBitmap
+    internal class BitmapCanvas
     {
-        public GridBitmap() { }
+        public BitmapCanvas() { }
 
         public static ToggleButton[][] CreateToggleButtonMap(ImageProperty item)
         {

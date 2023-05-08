@@ -232,6 +232,23 @@ namespace FontBmpGen
 
         public static List<ImageProperty> CreateImageList(string text)
         {
+            ImageProperty prop = new();
+
+            FontAdjustConfig config = new()
+            {
+                SingleCharWidth = prop.CharWidth,
+                SingleCharHeight = prop.CharHeight,
+                FontFamily = prop.FontFamily,
+                FontSize = prop.FontSize,
+                Bold = prop.FontBold,
+                Italic = prop.FontItalic,
+                Underline = prop.FontUnderline
+            };
+            return CreateImageList(text,config);
+        }
+
+        public static List<ImageProperty> CreateImageList(string text, FontAdjustConfig config)
+        {
             var result = new List<ImageProperty>();
             int offsetX = 0;
             int offsetY = 0;
@@ -255,31 +272,57 @@ namespace FontBmpGen
                     offsetX = 0;
                     continue;
                 }
-                ImageProperty prop = new();
+                ImageProperty prop
+                    = CreateCharacterProperty(c, config, (offsetX == 0 && offsetY > 0));
 
-                FontAdjustConfig config = new()
-                {
-                    SingleCharWidth = prop.CharWidth,
-                    SingleCharHeight = prop.CharHeight,
-                    FontFamily = prop.FontFamily,
-                    FontSize = prop.FontSize,
-                    Bold = prop.FontBold,
-                    Italic = prop.FontItalic,
-                    Underline = prop.FontUnderline
-                };
-
-                Bitmap bm = BinarizeOtsu(DrawCharacter(c, config), prop.BinaryThreshold);
-
-                prop.ViewSource = bm;
-                prop.Character = c;
-                prop.Hex = ToSequential(BinaryImageToHexBytes(bm));
-                prop.NewLine = (offsetX == 0 && offsetY > 0);
-                
                 result.Add(prop);
                 offsetX += prop.CharWidth;
             }
 
             return result;
+        }
+
+        public static ImageProperty CreateCharacterProperty(char c, FontAdjustConfig config, bool newline)
+        {
+            ImageProperty prop = new()
+            {
+                CharWidth = config.SingleCharWidth,
+                CharHeight = config.SingleCharHeight,
+                FontFamily = config.FontFamily,
+                FontSize = config.FontSize,
+                FontBold = config.Bold,
+                FontItalic = config.Italic,
+                FontUnderline = config.Underline
+            };
+
+            Bitmap bm = BinarizeOtsu(DrawCharacter(c, config), prop.BinaryThreshold);
+
+            prop.ViewSource = bm;
+            prop.Character = c;
+            prop.Hex = ToSequential(BinaryImageToHexBytes(bm));
+            prop.NewLine = newline;
+            return prop;
+        }
+
+        public static ImageProperty UpdateCharacterProperty(char c, ImageProperty prop)
+        {
+            FontAdjustConfig config = new()
+            {
+                SingleCharWidth = prop.CharWidth,
+                SingleCharHeight = prop.CharHeight,
+                FontFamily = prop.FontFamily,
+                FontSize = prop.FontSize,
+                Bold = prop.FontBold,
+                Italic = prop.FontItalic,
+                Underline = prop.FontUnderline
+            };
+
+            Bitmap bm = BinarizeOtsu(DrawCharacter(c, config), prop.BinaryThreshold);
+            prop.ViewSource = bm;
+            prop.Character = c;
+            prop.Hex = ToSequential(BinaryImageToHexBytes(bm));
+
+            return prop;
         }
 
         /// <summary>

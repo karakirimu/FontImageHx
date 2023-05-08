@@ -109,6 +109,7 @@
 
         <Menu Grid.Row="0" Grid.ColumnSpan="2">
             <MenuItem Header="_File">
+                <MenuItem Header="_New" Command="{Binding NewProfile}"/>
                 <MenuItem Header="_Open" Command="{Binding OpenProfile}"/>
                 <MenuItem Header="_Save" Command="{Binding SaveProfile}"/>
                 <MenuItem Header="_Export">
@@ -166,10 +167,10 @@
                     VerticalAlignment="Stretch" />
             </Grid>
 
-            <TabControl
+            <!--<TabControl
                 Grid.Column="1"
-                x:Name="tabControl">
-                <TabItem Header="Text">
+                x:Name="tabControl">-->
+                <!--<TabItem Header="Create">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*"/>
@@ -199,9 +200,9 @@
                             SnapsToDevicePixels="True"
                             StretchDirection="DownOnly" />
                     </Grid>
-                </TabItem>
-                <TabItem Header="Edit">
-                    <Grid>
+                </TabItem>-->
+                <!--<TabItem Header="Edit">-->
+                    <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="1*"/>
@@ -209,21 +210,26 @@
 
                         <DataGrid 
                             Grid.Row="0"
+                            Margin="0 8 8 0"
+                            BorderThickness="1"
                             ItemsSource="{Binding ConvertedImages, UpdateSourceTrigger=PropertyChanged}"
                             SelectedItem="{Binding LastSelectedImage, Mode=OneWayToSource}"
                             SelectedIndex="{Binding LastSelectedIndex, Mode=OneWayToSource}"
+                            CellEditEnding="DataGrid_CellEditEnding"
                             SelectionMode="Single"
                             AutoGenerateColumns="False"
                             CanUserAddRows="False"
-                            CanUserDeleteRows="False">
+                            CanUserDeleteRows="False" GridLinesVisibility="Horizontal">
                             <DataGrid.Columns>
                                 <DataGridTemplateColumn>
                                     <DataGridTemplateColumn.Header>
-                                        <CheckBox IsThreeState="True" Checked="CheckBox_SelectAll"/>
+                                        <CheckBox
+                                            Checked="CheckBox_SelectAll"
+                                            Unchecked="CheckBox_SelectAll"/>
                                     </DataGridTemplateColumn.Header>
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox 
+                                            <CheckBox
                                                 IsChecked="{Binding IsSelected}"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"/>
@@ -240,7 +246,9 @@
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTextColumn Header="Character" Binding="{Binding Character}" Width="1*"/>
+                                <DataGridTextColumn 
+                                    Header="Character"
+                                    Binding="{Binding Character}" Width="1*"/>
                                 <DataGridTemplateColumn Header="Lock" Width="36">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
@@ -469,8 +477,8 @@
                         </ScrollViewer>
 
                     </Grid>
-                </TabItem>
-            </TabControl>
+                <!--</TabItem>
+            </TabControl-->
         </Grid>
     </Grid>
 

@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
+using System.Windows.Data;
+using System.Diagnostics;
+using System.Linq;
 
 namespace FontBmpGen
 {
@@ -53,7 +54,7 @@ namespace FontBmpGen
             BitmapGrid.ColumnDefinitions.Clear();
             BitmapGrid.Children.Clear();
 
-            var toggle = GridBitmap.CreateToggleButtonMap(vm.LastSelectedImage);
+            var toggle = BitmapCanvas.CreateToggleButtonMap(vm.LastSelectedImage);
 
             Style resource = (Style)FindResource("ToggleButtonStyle");
             for (int y = 0; y <= vm.LastSelectedImage.CharHeight; y++)
@@ -109,6 +110,10 @@ namespace FontBmpGen
                 return;
             }
 
+            if(e.PropertyName == "AllSelected")
+            {
+            }
+
             //if(e.PropertyName == "ImageUpdate")
             //{
             //    if (viewModel.ConvertedImages.Contains(viewModel.SelectedImage))
@@ -127,65 +132,99 @@ namespace FontBmpGen
                 return;
             }
 
-            if (OutputArea == null)
-            {
-                return;
-            }        
+            //if (OutputArea == null)
+            //{
+            //    return;
+            //}        
 
-            if (vm.TextAreaString == "\r\n" || vm.TextAreaString == "")
-            {
-                OutputArea.Source = new BitmapImage();
-                vm.ConvertedImages.Clear();
-                return;
-            }
+            //if (vm.TextAreaString == "\r\n" || vm.TextAreaString == "")
+            //{
+            //    //OutputArea.Source = new BitmapImage();
+            //    vm.ConvertedImages.Clear();
+            //    return;
+            //}
 
-            vm.ConvertedImages.Clear();
+            //vm.ConvertedImages.Clear();
 
-            List<ImageProperty> p = BitmapOperation.CreateImageList(vm.TextAreaString);
-            OutputArea.Source = BitmapOperation.ConvertImage(BitmapOperation.CombineImage(p));
+            //List<ImageProperty> p = BitmapOperation.CreateImageList(vm.TextAreaString);
+            ////OutputArea.Source = BitmapOperation.ConvertImage(BitmapOperation.CombineImage(p));
 
-            foreach (ImageProperty item in p)
-            {
-                vm.ConvertedImages.Add(item);
-            }
+            //foreach (ImageProperty item in p)
+            //{
+            //    vm.ConvertedImages.Add(item);
+            //}
         }
 
         private void CheckBox_SelectAll(object sender, RoutedEventArgs e)
         {
+            if(sender is not CheckBox)
+            {
+                return;
+            }
 
+            CheckBox chkSelectAll = (CheckBox)sender;
+            MainViewModel vm = (MainViewModel)DataContext;
+
+            if (chkSelectAll.IsChecked == true)
+            {
+                foreach (var i in vm.ConvertedImages)
+                {
+                    i.IsSelected = true;
+                }
+            }
+            else
+            {
+                foreach(var i in vm.ConvertedImages)
+                {
+                    i.IsSelected = false;
+                }
+            }
         }
 
-        //private void Button_Click(object sender, RoutedEventArgs e)
+        //private void DataGrid_CurrentCellChanged(object sender, System.EventArgs e)
         //{
-        //    if (viewModel.ConvertedImages.Contains(viewModel.SelectedImage))
+        //    if (sender is not DataGrid)
         //    {
-        //        int index 
-        //            = viewModel.ConvertedImages.IndexOf(viewModel.SelectedImage);
-
-        //        BitmapEditWindow window = new(
-        //            viewModel.SelectedImage.Character,
-        //            viewModel.SelectedImage.Hex,
-        //            viewModel.SelectedImage.CharWidth,
-        //            viewModel.SelectedImage.CharHeight);
-
-        //        if (window.ShowDialog() == true)
-        //        {
-        //            Trace.WriteLine(window.Result);
-
-        //            ImageProperty prop = viewModel.ConvertedImages[index];
-        //            prop.ViewSource = BitmapOperation.FromSequential(
-        //                    window.Result,
-        //                    viewModel.SelectedImage.CharWidth,
-        //                    viewModel.SelectedImage.CharHeight);
-        //            prop.Hex = window.Result;
-
-        //            viewModel.ConvertedImages[index] = prop;
-
-        //            IEnumerable<ImageProperty> obsCollection = viewModel.ConvertedImages;
-        //            var list = new List<ImageProperty>(obsCollection);
-        //            OutputArea.Source = BitmapOperation.ConvertImage(BitmapOperation.CombineImage(list));
-        //        }
+        //        return;
         //    }
+
+        //    var datagrid = (DataGrid)sender;
+        //    var item = (ImageProperty)datagrid.CurrentItem;
+        //    var vm = (MainViewModel)datagrid.DataContext;
+
+        //    if(vm.LastSelectedIndex < 0)
+        //    {
+        //        return;
+        //    }
+
+        //    vm.ConvertedImages[vm.LastSelectedIndex] = item.ShallowCopy();
         //}
+
+        private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        {
+            if (e.EditAction == DataGridEditAction.Commit)
+            {
+                if (e.Column is DataGridBoundColumn column)
+                {
+                    var bindingPath = ((Binding)column.Binding).Path.Path;
+                    if (bindingPath == "Character")
+                    {
+                        int rowIndex = e.Row.GetIndex();
+                        var el = (TextBox)e.EditingElement;
+                        var vm = (MainViewModel)DataContext;
+
+                        if(el.Text.Length > 0)
+                        {
+                            var item = BitmapOperation.UpdateCharacterProperty(
+                                el.Text[0], vm.ConvertedImages[rowIndex].ShallowCopy());
+                            vm.ConvertedImages[rowIndex] = item;
+                            CreateEditControl(vm);
+                            var datagrid = (DataGrid)sender;
+
+                        }
+                    }
+                }
+            }
+        }
     }
 }
