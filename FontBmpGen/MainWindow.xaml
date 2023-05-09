@@ -208,6 +208,11 @@
                             <RowDefinition Height="1*"/>
                         </Grid.RowDefinitions>
 
+                        <Grid.Resources>
+                            <FrameworkElement x:Key="proxy" />
+                        </Grid.Resources>
+                        <ContentControl Visibility="Collapsed" Content="{StaticResource proxy}" />
+
                         <DataGrid 
                             Grid.Row="0"
                             Margin="0 8 8 0"
@@ -224,13 +229,14 @@
                                 <DataGridTemplateColumn>
                                     <DataGridTemplateColumn.Header>
                                         <CheckBox
+                                            IsChecked="{Binding Path=DataContext.AllSelected, Source={StaticResource proxy}}"
                                             Checked="CheckBox_SelectAll"
                                             Unchecked="CheckBox_SelectAll"/>
                                     </DataGridTemplateColumn.Header>
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox
-                                                IsChecked="{Binding IsSelected}"
+                                                IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"/>
                                         </DataTemplate>
