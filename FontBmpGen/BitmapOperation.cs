@@ -62,15 +62,16 @@ namespace FontBmpGen
 
         public static Bitmap GetCharacterImage(ImageProperty property)
         {
-            FontAdjustConfig config = new FontAdjustConfig()
+            ImageProperty def = new();
+            FontAdjustConfig config = new()
             {
+                SingleCharWidth = int.TryParse(property.CharWidth, out int charwidth) ? charwidth : int.Parse(def.CharWidth),
+                SingleCharHeight = int.TryParse(property.CharHeight, out int charheight) ? charheight : int.Parse(def.CharHeight),
                 FontFamily = property.FontFamily,
-                FontSize = property.FontSize,
+                FontSize = int.TryParse(property.FontSize, out int fontsize) ? fontsize : int.Parse(def.FontSize),
                 Bold = property.FontBold,
                 Italic = property.FontItalic,
-                Underline = property.FontUnderline,
-                SingleCharWidth = property.CharWidth,
-                SingleCharHeight = property.CharHeight
+                Underline = property.FontUnderline
             };
 
             return DrawCharacter(property.Character, config);
@@ -236,10 +237,10 @@ namespace FontBmpGen
 
             FontAdjustConfig config = new()
             {
-                SingleCharWidth = prop.CharWidth,
-                SingleCharHeight = prop.CharHeight,
+                SingleCharWidth = int.Parse(prop.CharWidth),
+                SingleCharHeight = int.Parse(prop.CharHeight),
                 FontFamily = prop.FontFamily,
-                FontSize = prop.FontSize,
+                FontSize = int.Parse(prop.FontSize),
                 Bold = prop.FontBold,
                 Italic = prop.FontItalic,
                 Underline = prop.FontUnderline
@@ -267,7 +268,7 @@ namespace FontBmpGen
                 {
                     if(result.Count > 0)
                     {
-                        offsetY += result[^1].CharHeight;
+                        offsetY += int.Parse(result[^1].CharHeight);
                     }
                     offsetX = 0;
                     continue;
@@ -276,7 +277,7 @@ namespace FontBmpGen
                     = CreateCharacterProperty(c, config, (offsetX == 0 && offsetY > 0));
 
                 result.Add(prop);
-                offsetX += prop.CharWidth;
+                offsetX += int.Parse(prop.CharWidth);
             }
 
             return result;
@@ -286,10 +287,10 @@ namespace FontBmpGen
         {
             ImageProperty prop = new()
             {
-                CharWidth = config.SingleCharWidth,
-                CharHeight = config.SingleCharHeight,
+                CharWidth = config.SingleCharWidth.ToString(),
+                CharHeight = config.SingleCharHeight.ToString(),
                 FontFamily = config.FontFamily,
-                FontSize = config.FontSize,
+                FontSize = config.FontSize.ToString(),
                 FontBold = config.Bold,
                 FontItalic = config.Italic,
                 FontUnderline = config.Underline
@@ -306,12 +307,13 @@ namespace FontBmpGen
 
         public static ImageProperty UpdateCharacterProperty(char c, ImageProperty prop)
         {
+            ImageProperty def = new();
             FontAdjustConfig config = new()
             {
-                SingleCharWidth = prop.CharWidth,
-                SingleCharHeight = prop.CharHeight,
+                SingleCharWidth = int.TryParse(prop.CharWidth, out int charwidth) ? charwidth : int.Parse(def.CharWidth),
+                SingleCharHeight = int.TryParse(prop.CharHeight, out int charheight) ? charheight: int.Parse(def.CharHeight),
                 FontFamily = prop.FontFamily,
-                FontSize = prop.FontSize,
+                FontSize = int.TryParse(prop.FontSize, out int fontsize) ? fontsize : int.Parse(def.FontSize),
                 Bold = prop.FontBold,
                 Italic = prop.FontItalic,
                 Underline = prop.FontUnderline

@@ -17,17 +17,23 @@ namespace FontBmpGen
 
         public static ToggleButton[][] CreateToggleButtonMap(ImageProperty item)
         {
-            var isBlack = (Color pixelColor) =>
+            if (!(int.TryParse(item.CharWidth, out int width)
+                && int.TryParse(item.CharHeight, out int height)))
+            {
+                return null;
+            }
+
+                var isBlack = (Color pixelColor) =>
             {
                 return pixelColor.R == 0 && pixelColor.G == 0 && pixelColor.B == 0;
             };
 
             Bitmap bitmap = item.ViewSource;
-            ToggleButton[][] resultMap = new ToggleButton[item.CharHeight][];
-            for (int y = 0; y < item.CharHeight; y++)
+            ToggleButton[][] resultMap = new ToggleButton[height][];
+            for (int y = 0; y < height; y++)
             {
-                resultMap[y] = new ToggleButton[item.CharWidth];
-                for (int x = 0; x < item.CharWidth; x++)
+                resultMap[y] = new ToggleButton[width];
+                for (int x = 0; x < width; x++)
                 {
                     Color color = bitmap.GetPixel(x, y);
                     resultMap[y][x] = new ToggleButton

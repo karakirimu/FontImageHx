@@ -11,14 +11,14 @@ namespace FontBmpGen
         public ImageProperty()
         {
             IsSelected = false;
-            FontSize = 12;
+            FontSize = "12";
             FontFamily = SystemFonts.DefaultFont.FontFamily.Name;
             FontBold = false;
             FontItalic = false;
             FontUnderline = false;
             NewLine = false;
-            CharWidth = 16;
-            CharHeight = 16;
+            CharWidth = "16";
+            CharHeight = "16";
             Hex = string.Empty;
             BinaryThreshold = 128;
         }
@@ -54,9 +54,9 @@ namespace FontBmpGen
         }
         public char Character { get; set; }
         public string Hex { get; set; }
-        public int FontSize { get; set; }
-        public int CharWidth { get; set; }
-        public int CharHeight { get; set; }
+        public string FontSize { get; set; }
+        public string CharWidth { get; set; }
+        public string CharHeight { get; set; }
         public string FontFamily { get; set; }
         public bool FontBold { get; set; }
         public bool FontItalic { get; set; }

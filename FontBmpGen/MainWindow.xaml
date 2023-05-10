@@ -255,7 +255,7 @@
                                 <DataGridTextColumn 
                                     Header="Character"
                                     Binding="{Binding Character}" Width="1*"/>
-                                <DataGridTemplateColumn Header="Lock" Width="36">
+                                <!--<DataGridTemplateColumn Header="Lock" Width="36">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <CheckBox 
@@ -264,93 +264,7 @@
                                                 VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <!--<DataGridTemplateColumn Header="Font">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <ComboBox
-                                            Grid.Column="0"
-                                            ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
-                                            Text="{Binding FontFamily}">
-                                                <ComboBox.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <VirtualizingStackPanel />
-                                                    </ItemsPanelTemplate>
-                                                </ComboBox.ItemsPanel>
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding}" FontFamily="{Binding}" Height="22" VerticalAlignment="Stretch"/>
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
-                                            </ComboBox>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="FontSize">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <ComboBox
-                                            IsEditable="True"
-                                            InputScope="Number"
-                                            ItemsSource="{Binding Source={StaticResource SizeSelection}}"
-                                            Text="{Binding FontSize}"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Bold">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <ToggleButton 
-                                            Height="24"
-                                            Width="24"
-                                            IsChecked="{Binding FontBold}"
-                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
-                                            FontWeight="Bold"
-                                            FontSize="14"
-                                            Content="B"
-                                            />
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Italic">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <ToggleButton 
-                                            Height="24"
-                                            Width="24"
-                                            IsChecked="{Binding FontItalic}"
-                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
-                                            FontWeight="Bold"
-                                            FontStyle="Italic"
-                                            FontSize="14"
-                                            Content="I"
-                                            />
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Bold">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <ToggleButton 
-                                            Height="24"
-                                            Width="24"
-                                            IsChecked="{Binding FontUnderline}"
-                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
-                                            FontWeight="Bold"
-                                            FontSize="14"
-                                            >
-                                                <TextBlock Text="U" TextDecorations="Underline"/>
-                                            </ToggleButton>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTextColumn Header="HexImage" Binding="{Binding Hex}" Width="1*">
-                                    --><!--<DataGridTextColumn.ElementStyle>
-                                    <Style>
-                                        <Setter Property="TextBlock.TextWrapping" Value="Wrap"></Setter>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>--><!--
-                                </DataGridTextColumn>-->
+                                </DataGridTemplateColumn>-->
                             </DataGrid.Columns>
                         </DataGrid>
 

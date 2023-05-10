@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
 using System.Windows.Data;
-using System.Diagnostics;
-using System.Linq;
 
 namespace FontBmpGen
 {
@@ -56,12 +52,18 @@ namespace FontBmpGen
 
             var toggle = BitmapCanvas.CreateToggleButtonMap(vm.LastSelectedImage);
 
+            if (!(int.TryParse(vm.LastSelectedImage.CharWidth, out int width)
+                    && int.TryParse(vm.LastSelectedImage.CharHeight, out int height)))
+            {
+                return;
+            }
+
             Style resource = (Style)FindResource("ToggleButtonStyle");
-            for (int y = 0; y <= vm.LastSelectedImage.CharHeight; y++)
+            for (int y = 0; y <= height; y++)
             {
                 BitmapGrid.RowDefinitions.Add(
                     new RowDefinition() { Height = new GridLength(1, GridUnitType.Star) });
-                for (int x = 0; x <= vm.LastSelectedImage.CharWidth; x++)
+                for (int x = 0; x <= width; x++)
                 {
                     if (y == 0)
                     {

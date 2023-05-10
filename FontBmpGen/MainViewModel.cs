@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -12,15 +13,15 @@ namespace FontBmpGen
         private string _textString = "";
         private ImageProperty _selectedImage;
         private ToggleButton[][]? _toggleButtonMap;
-        private int _fontSize = 12;
+        private string _fontSize = "";
         private string _fontFamily = "";
         private string _hexView = "";
         private bool _newLine;
         private bool _fontBold;
         private bool _fontItalic;
         private bool _fontUnderline;
-        private int _charWidth = 16;
-        private int _charHeight = 16;
+        private string _charWidth = "";
+        private string _charHeight = "";
         private int _selectedIndex = -1;
         private bool? _allSelected = false;
 
@@ -36,7 +37,6 @@ namespace FontBmpGen
         public WindowCommand NewProfile { get; init; }
         public WindowCommand OpenProfile { get; init; }
         public WindowCommand SaveProfile { get; init; }
-        //public WindowCommand PasteAscii { get; init; }
         public WindowCommand ImageUpdate { get; init; }
         public MainViewModel()
         {
@@ -90,8 +90,16 @@ namespace FontBmpGen
 
                 foreach (var im in profile)
                 {
-                    im.ViewSource = BitmapOperation.FromSequential(
-                        im.Hex, im.CharWidth, im.CharHeight);
+                    if(int.TryParse(im.CharWidth, out int width)
+                        && int.TryParse(im.CharHeight, out int height))
+                    {
+                        im.ViewSource = BitmapOperation.FromSequential(
+                            im.Hex, width, height);
+                    }
+                    else
+                    {
+                        im.ViewSource = new System.Drawing.Bitmap(1, 1);
+                    }
 
                     if (im.NewLine)
                     {
@@ -111,19 +119,6 @@ namespace FontBmpGen
             {
                 OpenSave.SaveProfile(ConvertedImages);
             });
-
-            //PasteAscii = new WindowCommand((_) =>
-            //{
-            //    const string ascii
-            //        = " !\"#$%&'()*+,-./\n" +
-            //          "0123456789:;<=>?\n" +
-            //          "@ABCDEFGHIJKLMNO\n" +
-            //          "PQRSTUVWXYZ[\\]^_\n" +
-            //          "`abcdefghijklmno\n" +
-            //          "pqrstuvwxyz{|}~";
-
-            //    TextAreaString = ascii;
-            //});
 
             ClickUp = new WindowCommand((_) =>
             {
@@ -156,10 +151,14 @@ namespace FontBmpGen
                 string hexdata = BitmapOperation.ToSequential(
                     BitmapOperation.ByteToBit(bitmapbyte));
                 ImageProperty w = ConvertedImages[LastSelectedIndex].ShallowCopy();
-                w.ViewSource = BitmapOperation.FromSequential(
-                        hexdata,
-                        LastSelectedImage.CharWidth,
-                        LastSelectedImage.CharHeight);
+
+                if (int.TryParse(LastSelectedImage.CharWidth, out int width)
+                    && int.TryParse(LastSelectedImage.CharHeight, out int height))
+                {
+                    w.ViewSource = BitmapOperation.FromSequential(
+                            hexdata, width, height);
+                }
+
                 w.Hex = hexdata;
 
                 ConvertedImages[LastSelectedIndex] = w;
@@ -169,25 +168,55 @@ namespace FontBmpGen
 
         private void OnImagePropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            int counter = 0;
-            foreach (var i in ConvertedImages)
+
+            if(ConvertedImages.Count == 0)
             {
-                counter += i.IsSelected ? 1 : -1;
+                AllSelected = false;
+                return;
             }
 
+            int counter = ConvertedImages.Count(i => i.IsSelected);
             if(counter == ConvertedImages.Count)
             {
                 AllSelected = true;
                 return;
             }
 
-            if(counter == -ConvertedImages.Count)
+            if(counter == 0)
             {
                 AllSelected = false;
                 return;
             }
 
             AllSelected = null;
+
+            var groups = ConvertedImages.GroupBy(i => new
+            {
+                i.FontFamily,
+                i.FontSize,
+                i.FontBold,
+                i.FontItalic,
+                i.FontUnderline,
+                i.CharWidth,
+                i.CharHeight
+            }).Distinct();
+
+            bool fontfamily = groups.Count(i => i.Key.FontFamily != null) > 1;
+            bool fontsize = groups.Count(i => i.Key.FontSize != null) > 1;
+            bool bold = groups.Count(i => i.Key.FontBold) > 1;
+            bool italic = groups.Count(i => i.Key.FontItalic) > 1;
+            bool underline = groups.Count(i => i.Key.FontUnderline) > 1;
+            bool charwidth = groups.Count(i => i.Key.CharWidth != null) > 1;
+            bool charheight = groups.Count(i => i.Key.CharHeight != null) > 1;
+
+            EditFontFamily = fontfamily ? string.Empty : ConvertedImages[0].FontFamily;
+            EditFontSize = fontsize ? string.Empty : ConvertedImages[0].FontSize.ToString();
+            EditFontItalic = italic ? false : ConvertedImages[0].FontItalic;
+            EditFontBold = bold ? false : ConvertedImages[0].FontBold;
+            EditFontUnderline = underline ? false : ConvertedImages[0].FontUnderline;
+            EditCharWidth = charwidth ? string.Empty : ConvertedImages[0].CharWidth.ToString();
+            EditCharHeight = charheight ? string.Empty : ConvertedImages[0].CharHeight.ToString();
+
         }
 
         public ToggleButton[][] ToggleButtonMap
@@ -231,7 +260,7 @@ namespace FontBmpGen
             }
         }
 
-        public int EditFontSize
+        public string EditFontSize
         {
             get => _fontSize;
             set
@@ -296,7 +325,7 @@ namespace FontBmpGen
             }
         }
 
-        public int EditCharWidth
+        public string EditCharWidth
         {
             get => _charWidth;
             set
@@ -308,7 +337,7 @@ namespace FontBmpGen
                 }
             }
         }
-        public int EditCharHeight
+        public string EditCharHeight
         {
             get => _charHeight;
             set
@@ -358,12 +387,12 @@ namespace FontBmpGen
                 {
                     _selectedImage = value;
                     _fontFamily = value.FontFamily;
-                    _fontSize = value.FontSize;
+                    _fontSize = value.FontSize.ToString();
                     _fontBold = value.FontBold;
                     _fontItalic = value.FontItalic;
                     _fontUnderline = value.FontUnderline;
-                    _charWidth = value.CharWidth;
-                    _charHeight = value.CharHeight;
+                    _charWidth = value.CharWidth.ToString();
+                    _charHeight = value.CharHeight.ToString();
                     _hexView = value.Hex;
                     _newLine = value.NewLine;
                     OnPropertyChanged(nameof(EditFontFamily));
