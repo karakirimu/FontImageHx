@@ -33,13 +33,21 @@
             <sys:String>24</sys:String>
             <sys:String>28</sys:String>
             <sys:String>30</sys:String>
+            <sys:String>32</sys:String>
             <sys:String>36</sys:String>
             <sys:String>40</sys:String>
             <sys:String>42</sys:String>
+            <sys:String>44</sys:String>
             <sys:String>48</sys:String>
+            <sys:String>50</sys:String>
             <sys:String>54</sys:String>
-            <sys:String>60</sys:String>
+            <sys:String>58</sys:String>
+            <sys:String>62</sys:String>
+            <sys:String>64</sys:String>
+            <sys:String>66</sys:String>
+            <sys:String>70</sys:String>
             <sys:String>72</sys:String>
+            <sys:String>74</sys:String>
             <sys:String>78</sys:String>
         </x:Array>
     </Window.Resources>
