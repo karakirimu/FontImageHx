@@ -27,13 +27,21 @@
             <sys:String>24</sys:String>
             <sys:String>28</sys:String>
             <sys:String>30</sys:String>
+            <sys:String>32</sys:String>
             <sys:String>36</sys:String>
             <sys:String>40</sys:String>
             <sys:String>42</sys:String>
+            <sys:String>44</sys:String>
             <sys:String>48</sys:String>
+            <sys:String>50</sys:String>
             <sys:String>54</sys:String>
-            <sys:String>60</sys:String>
+            <sys:String>58</sys:String>
+            <sys:String>62</sys:String>
+            <sys:String>64</sys:String>
+            <sys:String>66</sys:String>
+            <sys:String>70</sys:String>
             <sys:String>72</sys:String>
+            <sys:String>74</sys:String>
             <sys:String>78</sys:String>
         </x:Array>
 
@@ -94,6 +102,8 @@
                 </MultiTrigger>
             </Style.Triggers>
         </Style>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
 
     </Window.Resources>
 
@@ -229,9 +239,7 @@
                                 <DataGridTemplateColumn>
                                     <DataGridTemplateColumn.Header>
                                         <CheckBox
-                                            IsChecked="{Binding Path=DataContext.AllSelected, Source={StaticResource proxy}}"
-                                            Checked="CheckBox_SelectAll"
-                                            Unchecked="CheckBox_SelectAll"/>
+                                            IsChecked="{Binding Path=DataContext.AllSelected, Source={StaticResource proxy}}" />
                                     </DataGridTemplateColumn.Header>
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
@@ -269,6 +277,8 @@
                         </DataGrid>
 
                         <ScrollViewer
+                            Visibility="{Binding RowSelectedView,
+                                         Converter={StaticResource BoolToVisibility}}"
                             Grid.Row="1"
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Disabled">
@@ -396,7 +406,130 @@
 
                         </ScrollViewer>
 
+                <ScrollViewer
+                    Visibility="{Binding CheckSelectedView,
+                                 Converter={StaticResource BoolToVisibility}}"
+                    Grid.Row="1"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled">
+                    <Grid Margin="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="5*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="FontFamily" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="FontSize" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="FontOptions" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Width" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="8" Grid.Column="0" Text="Height" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="10" Grid.Column="0" Text="NewLine" VerticalAlignment="Center"/>
+
+                        <ComboBox  Grid.Row="0" Grid.Column="1"
+                                    ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
+                                    Text="{Binding SelectedFontFamily}">
+                            <ComboBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                            </ComboBox.ItemsPanel>
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock 
+                                        Text="{Binding}"
+                                        FontFamily="{Binding}"
+                                        VerticalAlignment="Stretch"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <ComboBox  Grid.Row="2" Grid.Column="1"
+                                    IsEditable="True"
+                                    InputScope="Number"
+                                    ItemsSource="{Binding Source={StaticResource SizeSelection}}"
+                                    Text="{Binding SelectedFontSize}"/>
+
+                        <StackPanel Grid.Row="4" Grid.Column="1"
+                                            Orientation="Horizontal">
+                            <ToggleButton
+                                            HorizontalAlignment="Left"
+                                            Height="24"
+                                            Width="24"
+                                            IsChecked="{Binding SelectedFontBold}"
+                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
+                                            FontWeight="Bold"
+                                            FontSize="14"
+                                            Content="B"
+                                            />
+
+                            <ToggleButton
+                                            HorizontalAlignment="Left"
+                                            Height="24"
+                                            Width="24"
+                                            Margin="4 0 0 0"
+                                            IsChecked="{Binding SelectedFontItalic}"
+                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
+                                            FontWeight="Bold"
+                                            FontStyle="Italic"
+                                            FontSize="14"
+                                            Content="I"
+                                            />
+
+                            <ToggleButton
+                                            HorizontalAlignment="Left"
+                                            Height="24"
+                                            Width="24"
+                                            Margin="4 0 0 0"
+                                            IsChecked="{Binding SelectedFontUnderline}"
+                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
+                                            FontWeight="Bold"
+                                            FontSize="14"
+                                            >
+                                <TextBlock Text="U" TextDecorations="Underline"/>
+                            </ToggleButton>
+                        </StackPanel>
+
+                        <ComboBox  Grid.Row="6" Grid.Column="1"
+                                    IsEditable="True"
+                                    InputScope="Number"
+                                    IsReadOnly="True"
+                                    ItemsSource="{Binding Source={StaticResource SizeSelection}}"
+                                    Text="{Binding SelectedCharWidth}"/>
+
+                        <ComboBox  Grid.Row="8" Grid.Column="1"
+                                    IsEditable="True"
+                                    InputScope="Number"
+                                    IsReadOnly="True"
+                                    ItemsSource="{Binding Source={StaticResource SizeSelection}}"
+                                    Text="{Binding SelectedCharHeight}"/>
+
+                        <CheckBox Grid.Row="10" Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    IsChecked="{Binding SelectedNewLine}"/>
+
                     </Grid>
+
+                </ScrollViewer>
+
+            </Grid>
                 <!--</TabItem>
             </TabControl-->
         </Grid>

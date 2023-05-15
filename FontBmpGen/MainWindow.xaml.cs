@@ -2,6 +2,7 @@
 using System.Windows.Controls.Primitives;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Threading.Tasks;
 
 namespace FontBmpGen
 {
@@ -50,7 +51,8 @@ namespace FontBmpGen
             BitmapGrid.ColumnDefinitions.Clear();
             BitmapGrid.Children.Clear();
 
-            var toggle = BitmapCanvas.CreateToggleButtonMap(vm.LastSelectedImage);
+            ToggleButton[][] toggle
+                = BitmapCanvas.CreateToggleButtonMap(vm.LastSelectedImage);
 
             if (!(int.TryParse(vm.LastSelectedImage.CharWidth, out int width)
                     && int.TryParse(vm.LastSelectedImage.CharHeight, out int height)))
@@ -102,19 +104,19 @@ namespace FontBmpGen
 
             var vm = (MainViewModel)sender;
 
-            if (e.PropertyName.Contains("Edit"))
-            {
-                return;
-            }
+            //if (e.PropertyName.Contains("Edit"))
+            //{
+            //    return;
+            //}
 
-            if(e.PropertyName == "ToggleButtonMap")
-            {
-                return;
-            }
+            //if(e.PropertyName == "ToggleButtonMap")
+            //{
+            //    return;
+            //}
 
-            if(e.PropertyName == "AllSelected")
-            {
-            }
+            //if(e.PropertyName == "AllSelected")
+            //{
+            //}
 
             //if(e.PropertyName == "ImageUpdate")
             //{
@@ -157,31 +159,31 @@ namespace FontBmpGen
             //}
         }
 
-        private void CheckBox_SelectAll(object sender, RoutedEventArgs e)
-        {
-            if(sender is not CheckBox)
-            {
-                return;
-            }
+        //private void CheckBox_SelectAll(object sender, RoutedEventArgs e)
+        //{
+        //    if(sender is not CheckBox)
+        //    {
+        //        return;
+        //    }
 
-            CheckBox chkSelectAll = (CheckBox)sender;
-            MainViewModel vm = (MainViewModel)DataContext;
+        //    CheckBox chkSelectAll = (CheckBox)sender;
+        //    MainViewModel vm = (MainViewModel)DataContext;
 
-            if (chkSelectAll.IsChecked == true)
-            {
-                foreach (var i in vm.ConvertedImages)
-                {
-                    i.IsSelected = true;
-                }
-            }
-            else
-            {
-                foreach(var i in vm.ConvertedImages)
-                {
-                    i.IsSelected = false;
-                }
-            }
-        }
+        //    if (chkSelectAll.IsChecked == true)
+        //    {
+        //        foreach (var i in vm.ConvertedImages)
+        //        {
+        //            i.IsSelected = true;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        foreach(var i in vm.ConvertedImages)
+        //        {
+        //            i.IsSelected = false;
+        //        }
+        //    }
+        //}
 
         //private void DataGrid_CurrentCellChanged(object sender, System.EventArgs e)
         //{
@@ -221,8 +223,7 @@ namespace FontBmpGen
                                 el.Text[0], vm.ConvertedImages[rowIndex].ShallowCopy());
                             vm.ConvertedImages[rowIndex] = item;
                             CreateEditControl(vm);
-                            var datagrid = (DataGrid)sender;
-
+                            //var datagrid = (DataGrid)sender;
                         }
                     }
                 }
