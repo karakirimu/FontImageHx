@@ -177,241 +177,62 @@
                     VerticalAlignment="Stretch" />
             </Grid>
 
-            <!--<TabControl
-                Grid.Column="1"
-                x:Name="tabControl">-->
-                <!--<TabItem Header="Create">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*"/>
-                            <RowDefinition Height="1*"/>
-                        </Grid.RowDefinitions>
-                        <Grid Grid.Row="0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="24"/>
-                                <RowDefinition Height="1*"/>
-                            </Grid.RowDefinitions>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
 
-                            <Button Grid.Row="0" Content="Paste Ascii" Command="{Binding PasteAscii}"/>
-                            <TextBox
-                                Grid.Row="1"
-                                TextWrapping="Wrap"
-                                AcceptsReturn="True"
-                                HorizontalScrollBarVisibility="Disabled"
-                                VerticalScrollBarVisibility="Auto"   
-                                Text="{Binding TextAreaString, UpdateSourceTrigger=PropertyChanged}"/>
-                        </Grid>
+                <Grid.Resources>
+                    <FrameworkElement x:Key="proxy" />
+                </Grid.Resources>
+                <ContentControl Visibility="Collapsed" Content="{StaticResource proxy}" />
 
-                        <Image 
-                            x:Name="OutputArea"
-                            Grid.Row="1"
-                            Stretch="Uniform"
-                            RenderOptions.BitmapScalingMode="NearestNeighbor"
-                            SnapsToDevicePixels="True"
-                            StretchDirection="DownOnly" />
-                    </Grid>
-                </TabItem>-->
-                <!--<TabItem Header="Edit">-->
-                    <Grid Grid.Column="1">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="1*"/>
-                            <RowDefinition Height="1*"/>
-                        </Grid.RowDefinitions>
-
-                        <Grid.Resources>
-                            <FrameworkElement x:Key="proxy" />
-                        </Grid.Resources>
-                        <ContentControl Visibility="Collapsed" Content="{StaticResource proxy}" />
-
-                        <DataGrid 
-                            Grid.Row="0"
-                            Margin="0 8 8 0"
-                            BorderThickness="1"
-                            ItemsSource="{Binding ConvertedImages, UpdateSourceTrigger=PropertyChanged}"
-                            SelectedItem="{Binding LastSelectedImage, Mode=OneWayToSource}"
-                            SelectedIndex="{Binding LastSelectedIndex, Mode=OneWayToSource}"
-                            CellEditEnding="DataGrid_CellEditEnding"
-                            SelectionMode="Single"
-                            AutoGenerateColumns="False"
-                            CanUserAddRows="False"
-                            CanUserDeleteRows="False" GridLinesVisibility="Horizontal">
-                            <DataGrid.Columns>
-                                <DataGridTemplateColumn>
-                                    <DataGridTemplateColumn.Header>
-                                        <CheckBox
-                                            IsChecked="{Binding Path=DataContext.AllSelected, Source={StaticResource proxy}}" />
-                                    </DataGridTemplateColumn.Header>
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox
-                                                IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="View">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Image
+                <DataGrid 
+                    Grid.Row="0"
+                    Margin="0 8 8 0"
+                    BorderThickness="1"
+                    ItemsSource="{Binding ConvertedImages, UpdateSourceTrigger=PropertyChanged}"
+                    SelectedItem="{Binding LastSelectedImage, Mode=OneWayToSource}"
+                    SelectedIndex="{Binding LastSelectedIndex, Mode=OneWayToSource}"
+                    CellEditEnding="DataGrid_CellEditEnding"
+                    SelectionMode="Single"
+                    AutoGenerateColumns="False"
+                    CanUserAddRows="False"
+                    CanUserDeleteRows="False" GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="View">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Image
                                             Source="{Binding View}"
                                             RenderOptions.BitmapScalingMode="NearestNeighbor"
                                             />
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTextColumn 
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn 
                                     Header="Character"
                                     Binding="{Binding Character}" Width="1*"/>
-                                <!--<DataGridTemplateColumn Header="Lock" Width="36">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox 
-                                                IsChecked="{Binding Locked}"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>-->
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <!--<DataGridTemplateColumn Header="Lock" Width="36">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox 
+                                        IsChecked="{Binding Locked}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>-->
+                    </DataGrid.Columns>
+                </DataGrid>
 
-                        <ScrollViewer
+                <ScrollViewer
                             Visibility="{Binding RowSelectedView,
                                          Converter={StaticResource BoolToVisibility}}"
                             Grid.Row="1"
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Disabled">
-                            <Grid Margin="8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="5*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="24"/>
-                                    <RowDefinition Height="4"/>
-                                    <RowDefinition Height="24"/>
-                                    <RowDefinition Height="4"/>
-                                    <RowDefinition Height="24"/>
-                                    <RowDefinition Height="4"/>
-                                    <RowDefinition Height="24"/>
-                                    <RowDefinition Height="4"/>
-                                    <RowDefinition Height="24"/>
-                                    <RowDefinition Height="4"/>
-                                    <RowDefinition Height="24"/>
-                                    <RowDefinition Height="4"/>
-                                    <RowDefinition Height="24"/>
-                                    <RowDefinition Height="4"/>
-                                    
-                                    <RowDefinition Height="1*"/>
-                                </Grid.RowDefinitions>
-                                
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="FontFamily" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="FontSize" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Row="4" Grid.Column="0" Text="FontOptions" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Row="6" Grid.Column="0" Text="Width" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Row="8" Grid.Column="0" Text="Height" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Row="10" Grid.Column="0" Text="NewLine" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Row="12" Grid.Column="0" Text="Hex" VerticalAlignment="Center"/>
-
-                                <ComboBox  Grid.Row="0" Grid.Column="1"
-                                    ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
-                                    Text="{Binding EditFontFamily}">
-                                    <ComboBox.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <VirtualizingStackPanel />
-                                        </ItemsPanelTemplate>
-                                    </ComboBox.ItemsPanel>
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock 
-                                                Text="{Binding}"
-                                                FontFamily="{Binding}"
-                                                VerticalAlignment="Stretch"/>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-
-                                <ComboBox  Grid.Row="2" Grid.Column="1"
-                                    IsEditable="True"
-                                    InputScope="Number"
-                                    ItemsSource="{Binding Source={StaticResource SizeSelection}}"
-                                    Text="{Binding EditFontSize}"/>
-
-                                <StackPanel Grid.Row="4" Grid.Column="1"
-                                            Orientation="Horizontal">
-                                    <ToggleButton
-                                            HorizontalAlignment="Left"
-                                            Height="24"
-                                            Width="24"
-                                            IsChecked="{Binding EditFontBold}"
-                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
-                                            FontWeight="Bold"
-                                            FontSize="14"
-                                            Content="B"
-                                            />
-
-                                    <ToggleButton
-                                            HorizontalAlignment="Left"
-                                            Height="24"
-                                            Width="24"
-                                            Margin="4 0 0 0"
-                                            IsChecked="{Binding EditFontItalic}"
-                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
-                                            FontWeight="Bold"
-                                            FontStyle="Italic"
-                                            FontSize="14"
-                                            Content="I"
-                                            />
-
-                                    <ToggleButton
-                                            HorizontalAlignment="Left"
-                                            Height="24"
-                                            Width="24"
-                                            Margin="4 0 0 0"
-                                            IsChecked="{Binding EditFontUnderline}"
-                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
-                                            FontWeight="Bold"
-                                            FontSize="14"
-                                            >
-                                        <TextBlock Text="U" TextDecorations="Underline"/>
-                                    </ToggleButton>
-                                </StackPanel>
-
-                                <ComboBox  Grid.Row="6" Grid.Column="1"
-                                    IsEditable="True"
-                                    InputScope="Number"
-                                    IsReadOnly="True"
-                                    ItemsSource="{Binding Source={StaticResource SizeSelection}}"
-                                    Text="{Binding EditCharWidth}"/>
-
-                                <ComboBox  Grid.Row="8" Grid.Column="1"
-                                    IsEditable="True"
-                                    InputScope="Number"
-                                    IsReadOnly="True"
-                                    ItemsSource="{Binding Source={StaticResource SizeSelection}}"
-                                    Text="{Binding EditCharHeight}"/>
-
-                                <CheckBox Grid.Row="10" Grid.Column="1"
-                                    VerticalAlignment="Center"
-                                    IsChecked="{Binding EditNewLine}"/>
-
-                                <TextBox   Grid.Row="12" Grid.Column="1"
-                                           Grid.RowSpan="3"
-                                           TextWrapping="Wrap"
-                                           IsReadOnly="True"
-                                           Text="{Binding EditHexView}"/>
-
-                            </Grid>
-
-                        </ScrollViewer>
-
-                <ScrollViewer
-                    Visibility="{Binding CheckSelectedView,
-                                 Converter={StaticResource BoolToVisibility}}"
-                    Grid.Row="1"
-                    VerticalScrollBarVisibility="Auto"
-                    HorizontalScrollBarVisibility="Disabled">
                     <Grid Margin="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="3*"/>
@@ -442,10 +263,11 @@
                         <TextBlock Grid.Row="6" Grid.Column="0" Text="Width" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="8" Grid.Column="0" Text="Height" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="10" Grid.Column="0" Text="NewLine" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="12" Grid.Column="0" Text="Hex" VerticalAlignment="Center"/>
 
                         <ComboBox  Grid.Row="0" Grid.Column="1"
                                     ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
-                                    Text="{Binding SelectedFontFamily}">
+                                    Text="{Binding EditFontFamily}">
                             <ComboBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel />
@@ -454,9 +276,9 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock 
-                                        Text="{Binding}"
-                                        FontFamily="{Binding}"
-                                        VerticalAlignment="Stretch"/>
+                                                Text="{Binding}"
+                                                FontFamily="{Binding}"
+                                                VerticalAlignment="Stretch"/>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
@@ -465,7 +287,7 @@
                                     IsEditable="True"
                                     InputScope="Number"
                                     ItemsSource="{Binding Source={StaticResource SizeSelection}}"
-                                    Text="{Binding SelectedFontSize}"/>
+                                    Text="{Binding EditFontSize}"/>
 
                         <StackPanel Grid.Row="4" Grid.Column="1"
                                             Orientation="Horizontal">
@@ -473,7 +295,7 @@
                                             HorizontalAlignment="Left"
                                             Height="24"
                                             Width="24"
-                                            IsChecked="{Binding SelectedFontBold}"
+                                            IsChecked="{Binding EditFontBold}"
                                             FontFamily="{Binding Source={StaticResource LogoFont}}"
                                             FontWeight="Bold"
                                             FontSize="14"
@@ -485,7 +307,7 @@
                                             Height="24"
                                             Width="24"
                                             Margin="4 0 0 0"
-                                            IsChecked="{Binding SelectedFontItalic}"
+                                            IsChecked="{Binding EditFontItalic}"
                                             FontFamily="{Binding Source={StaticResource LogoFont}}"
                                             FontWeight="Bold"
                                             FontStyle="Italic"
@@ -498,7 +320,7 @@
                                             Height="24"
                                             Width="24"
                                             Margin="4 0 0 0"
-                                            IsChecked="{Binding SelectedFontUnderline}"
+                                            IsChecked="{Binding EditFontUnderline}"
                                             FontFamily="{Binding Source={StaticResource LogoFont}}"
                                             FontWeight="Bold"
                                             FontSize="14"
@@ -512,26 +334,30 @@
                                     InputScope="Number"
                                     IsReadOnly="True"
                                     ItemsSource="{Binding Source={StaticResource SizeSelection}}"
-                                    Text="{Binding SelectedCharWidth}"/>
+                                    Text="{Binding EditCharWidth}"/>
 
                         <ComboBox  Grid.Row="8" Grid.Column="1"
                                     IsEditable="True"
                                     InputScope="Number"
                                     IsReadOnly="True"
                                     ItemsSource="{Binding Source={StaticResource SizeSelection}}"
-                                    Text="{Binding SelectedCharHeight}"/>
+                                    Text="{Binding EditCharHeight}"/>
 
                         <CheckBox Grid.Row="10" Grid.Column="1"
                                     VerticalAlignment="Center"
-                                    IsChecked="{Binding SelectedNewLine}"/>
+                                    IsChecked="{Binding EditNewLine}"/>
+
+                        <TextBox   Grid.Row="12" Grid.Column="1"
+                                    Grid.RowSpan="3"
+                                    TextWrapping="Wrap"
+                                    IsReadOnly="True"
+                                    Text="{Binding EditHexView}"/>
 
                     </Grid>
 
                 </ScrollViewer>
 
             </Grid>
-                <!--</TabItem>
-            </TabControl-->
         </Grid>
     </Grid>
 

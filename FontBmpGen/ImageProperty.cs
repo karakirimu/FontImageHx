@@ -10,7 +10,6 @@ namespace FontBmpGen
     {
         public ImageProperty()
         {
-            IsSelected = false;
             FontSize = "12";
             FontFamily = SystemFonts.DefaultFont.FontFamily.Name;
             FontBold = false;
@@ -23,21 +22,6 @@ namespace FontBmpGen
             BinaryThreshold = 128;
         }
 
-        [JsonIgnore]
-        private bool _isSelected;
-        [JsonIgnore]
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set
-            {
-                if (_isSelected != value)
-                {
-                    _isSelected = value;
-                    OnPropertyChanged(nameof(IsSelected));
-                }
-            }
-        }
         [JsonIgnore]
         private Bitmap _bitmap = new(1, 1);
         [JsonIgnore]

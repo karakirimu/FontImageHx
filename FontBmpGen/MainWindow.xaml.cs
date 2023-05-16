@@ -104,105 +104,12 @@ namespace FontBmpGen
 
             var vm = (MainViewModel)sender;
 
-            //if (e.PropertyName.Contains("Edit"))
-            //{
-            //    return;
-            //}
-
-            //if(e.PropertyName == "ToggleButtonMap")
-            //{
-            //    return;
-            //}
-
-            //if(e.PropertyName == "AllSelected")
-            //{
-            //}
-
-            //if(e.PropertyName == "ImageUpdate")
-            //{
-            //    if (viewModel.ConvertedImages.Contains(viewModel.SelectedImage))
-            //    {
-            //        int index
-            //            = viewModel.ConvertedImages.IndexOf(viewModel.SelectedImage);
-
-                    
-            //    }
-            //    return;
-            //}
-
             if(e.PropertyName == "LastSelectedImage")
             {
                 CreateEditControl(vm);
                 return;
             }
-
-            //if (OutputArea == null)
-            //{
-            //    return;
-            //}        
-
-            //if (vm.TextAreaString == "\r\n" || vm.TextAreaString == "")
-            //{
-            //    //OutputArea.Source = new BitmapImage();
-            //    vm.ConvertedImages.Clear();
-            //    return;
-            //}
-
-            //vm.ConvertedImages.Clear();
-
-            //List<ImageProperty> p = BitmapOperation.CreateImageList(vm.TextAreaString);
-            ////OutputArea.Source = BitmapOperation.ConvertImage(BitmapOperation.CombineImage(p));
-
-            //foreach (ImageProperty item in p)
-            //{
-            //    vm.ConvertedImages.Add(item);
-            //}
         }
-
-        //private void CheckBox_SelectAll(object sender, RoutedEventArgs e)
-        //{
-        //    if(sender is not CheckBox)
-        //    {
-        //        return;
-        //    }
-
-        //    CheckBox chkSelectAll = (CheckBox)sender;
-        //    MainViewModel vm = (MainViewModel)DataContext;
-
-        //    if (chkSelectAll.IsChecked == true)
-        //    {
-        //        foreach (var i in vm.ConvertedImages)
-        //        {
-        //            i.IsSelected = true;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        foreach(var i in vm.ConvertedImages)
-        //        {
-        //            i.IsSelected = false;
-        //        }
-        //    }
-        //}
-
-        //private void DataGrid_CurrentCellChanged(object sender, System.EventArgs e)
-        //{
-        //    if (sender is not DataGrid)
-        //    {
-        //        return;
-        //    }
-
-        //    var datagrid = (DataGrid)sender;
-        //    var item = (ImageProperty)datagrid.CurrentItem;
-        //    var vm = (MainViewModel)datagrid.DataContext;
-
-        //    if(vm.LastSelectedIndex < 0)
-        //    {
-        //        return;
-        //    }
-
-        //    vm.ConvertedImages[vm.LastSelectedIndex] = item.ShallowCopy();
-        //}
 
         private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {

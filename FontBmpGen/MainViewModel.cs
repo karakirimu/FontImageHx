@@ -39,126 +39,6 @@ namespace FontBmpGen
                 }
             }
         }
-        private bool _checkselectedview;
-        public bool CheckSelectedView
-        {
-            get => _checkselectedview;
-            set
-            {
-                if (_checkselectedview != value)
-                {
-                    _checkselectedview = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private string _selectedfontFamily = "";
-        public string SelectedFontFamily
-        {
-            get => _selectedfontFamily;
-            set
-            {
-                if(_selectedfontFamily != value)
-                {
-                    _selectedfontFamily = value;
-                    UpdateCheckedRows((i) => { i.FontFamily = value; });
-                    OnPropertyChanged();
-                }
-            }
-        }
-        private string _selectedfontSize = "";
-        public string SelectedFontSize
-        {
-            get => _selectedfontSize;
-            set
-            {
-                if (_selectedfontSize != value)
-                {
-                    _selectedfontSize = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        private bool?   _selectednewLine;
-        public bool? SelectedNewLine
-        {
-            get => _selectednewLine;
-            set
-            {
-                if (_selectednewLine != value)
-                {
-                    _selectednewLine = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private bool?   _selectedfontBold;
-        public bool? SelectedFontBold
-        {
-            get => _selectedfontBold;
-            set
-            {
-                if (_selectedfontBold != value)
-                {
-                    _selectedfontBold = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        private bool?   _selectedfontItalic;
-        public bool? SelectedFontItalic
-        {
-            get => _selectedfontItalic;
-            set
-            {
-                if( _selectedfontItalic != value)
-                {
-                    _selectedfontItalic = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        private bool?   _selectedfontUnderline;
-        public bool? SelectedFontUnderline
-        {
-            get => _selectedfontUnderline;
-            set
-            {
-                if( _selectedfontUnderline != value)
-                {
-                    _selectedfontUnderline = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        private string _selectedcharWidth = "";
-        public string SelectedCharWidth
-        {
-            get => _selectedcharWidth;
-            set
-            {
-                if (_selectedcharWidth != value)
-                {
-                    _selectedcharWidth = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-        private string _selectedcharHeight = "";
-        public string SelectedCharHeight
-        {
-            get => _selectedcharHeight;
-            set
-            {
-                if( _selectedcharHeight != value)
-                {
-                    _selectedcharHeight = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
         public WindowCommand ClickUp { get; init; }
         public WindowCommand ClickLeft { get; init; }
@@ -207,7 +87,6 @@ namespace FontBmpGen
                 ConvertedImages.Clear();
                 foreach(var im in textWizard.Result)
                 {
-                    im.PropertyChanged += OnImagePropertyChanged;
                     ConvertedImages.Add(im);
                 }
             });
@@ -242,8 +121,6 @@ namespace FontBmpGen
                     }
 
                     _textString += im.Character;
-
-                    im.PropertyChanged += OnImagePropertyChanged;
                     ConvertedImages.Add(im);
                 }
 
@@ -301,63 +178,6 @@ namespace FontBmpGen
             });
         }
 
-        private void OnImagePropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {           
-            int counter = ConvertedImages.Count(i => i.IsSelected);
-            if(counter == ConvertedImages.Count)
-            {
-                AllSelected = true;
-            }
-            else
-            {
-                AllSelected = null;
-            }
-
-            if(counter == 0)
-            {
-                AllSelected = false;
-                CheckSelectedView = false;
-                RowSelectedView = false;
-                return;
-            }
-
-            var groups = ConvertedImages.Where(i => i.IsSelected).GroupBy(i => new
-            {
-                i.FontFamily,
-                i.FontSize,
-                i.FontBold,
-                i.FontItalic,
-                i.FontUnderline,
-                i.NewLine,
-                i.CharWidth,
-                i.CharHeight
-            }).Distinct();
-
-            bool fontfamily = groups.GroupBy(i => i.Key.FontFamily).Distinct().Count() > 1;
-            bool fontsize = groups.GroupBy(i => i.Key.FontSize).Distinct().Count() > 1;
-            bool bold = groups.GroupBy(i => i.Key.FontBold).Distinct().Count() > 1;
-            bool italic = groups.GroupBy(i => i.Key.FontItalic).Distinct().Count() > 1;
-            bool newline = groups.GroupBy(i => i.Key.NewLine).Distinct().Count() > 1;
-            bool underline = groups.GroupBy(i => i.Key.FontUnderline).Distinct().Count() > 1;
-            bool charwidth = groups.GroupBy(i => i.Key.CharWidth).Distinct().Count() > 1;
-            bool charheight = groups.GroupBy(i => i.Key.CharHeight).Distinct().Count() > 1;
-
-            if (AllSelected == true || AllSelected == null)
-            {
-                SelectedFontFamily = fontfamily ? string.Empty : ConvertedImages[0].FontFamily;
-                SelectedFontSize = fontsize ? string.Empty : ConvertedImages[0].FontSize.ToString();
-                SelectedFontItalic = italic ? false : ConvertedImages[0].FontItalic;
-                SelectedFontBold = bold ? false : ConvertedImages[0].FontBold;
-                SelectedFontUnderline = underline ? false : ConvertedImages[0].FontUnderline;
-                SelectedNewLine = newline ? null : ConvertedImages[0].NewLine;
-                SelectedCharWidth = charwidth ? string.Empty : ConvertedImages[0].CharWidth.ToString();
-                SelectedCharHeight = charheight ? string.Empty : ConvertedImages[0].CharHeight.ToString();
-
-                CheckSelectedView = true;
-                RowSelectedView = false;
-            }
-        }
-
         public ToggleButton[][] ToggleButtonMap
         {
             get => _toggleButtonMap;
@@ -367,22 +187,6 @@ namespace FontBmpGen
                 {
                     _toggleButtonMap = value;
                     OnPropertyChanged();
-                }
-            }
-        }
-
-        private void UpdateCheckedRows(Action<ImageProperty> updateAction)
-        {
-            if (!CheckSelectedView)
-            {
-                return;
-            }
-
-            for (int i = 0; i < ConvertedImages.Count; i++)
-            {
-                if (ConvertedImages[i].IsSelected)
-                {
-                    UpdateImageProperty(updateAction);
                 }
             }
         }
@@ -551,7 +355,6 @@ namespace FontBmpGen
                     OnPropertyChanged(nameof(EditCharHeight));
                     OnPropertyChanged(nameof(EditHexView));
                     OnPropertyChanged(nameof(EditNewLine));
-                    CheckSelectedView = false;
                     RowSelectedView = true;
                     OnPropertyChanged();
                     return;
@@ -580,15 +383,6 @@ namespace FontBmpGen
                 if (_allSelected != value)
                 {
                     _allSelected = value;
-
-                    if(value != null)
-                    {
-                        for (int i = 0; i < ConvertedImages.Count; i++)
-                        {
-                            ConvertedImages[i].IsSelected = value ?? true;
-                        }
-                    }
-
                     OnPropertyChanged();
                 }
             }
