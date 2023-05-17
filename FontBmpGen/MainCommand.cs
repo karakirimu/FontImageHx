@@ -3,13 +3,13 @@ using System.Windows.Input;
 
 namespace FontBmpGen
 {
-    public class MainWindowCommand : ICommand
+    public class WindowCommand : ICommand
     {
         public delegate void ExecuteDelegate(object? param);
         public event EventHandler? CanExecuteChanged;
-        private ExecuteDelegate _delegate;
+        private readonly ExecuteDelegate _delegate;
 
-        public MainWindowCommand(ExecuteDelegate execute)
+        public WindowCommand(ExecuteDelegate execute)
         {
             _delegate = execute;
         }

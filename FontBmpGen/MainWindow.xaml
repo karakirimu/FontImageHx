@@ -1,24 +1,110 @@
 ﻿<Window x:Class="FontBmpGen.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FontBmpGen"
         d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
         mc:Ignorable="d"
-        Title="FontBitmapGenerator" Height="450" Width="800">
+        Title="FontBitmapGenerator" Height="600" Width="800">
 
     <Window.Resources>
         <FontFamily x:Key="LogoFont">Segoe UI</FontFamily>
-        <TextBlock x:Key="BoldImage" Text="B" FontFamily="{StaticResource LogoFont}" FontWeight="Bold" FontSize="14" />
-        <TextBlock x:Key="ItalicImage" Text="I" FontFamily="{StaticResource LogoFont}" FontWeight="Bold" FontStyle="Italic" FontSize="14" />
-        <TextBlock x:Key="UnderLineImage" Text="U" FontFamily="{StaticResource LogoFont}" FontWeight="Bold" TextDecorations="Underline" FontSize="14" />
+        <x:Array x:Key="SizeSelection" Type="{x:Type sys:String}">
+            <sys:String>6</sys:String>
+            <sys:String>7</sys:String>
+            <sys:String>8</sys:String>
+            <sys:String>9</sys:String>
+            <sys:String>10</sys:String>
+            <sys:String>11</sys:String>
+            <sys:String>12</sys:String>
+            <sys:String>14</sys:String>
+            <sys:String>16</sys:String>
+            <sys:String>18</sys:String>
+            <sys:String>20</sys:String>
+            <sys:String>21</sys:String>
+            <sys:String>24</sys:String>
+            <sys:String>28</sys:String>
+            <sys:String>30</sys:String>
+            <sys:String>32</sys:String>
+            <sys:String>36</sys:String>
+            <sys:String>40</sys:String>
+            <sys:String>42</sys:String>
+            <sys:String>44</sys:String>
+            <sys:String>48</sys:String>
+            <sys:String>50</sys:String>
+            <sys:String>54</sys:String>
+            <sys:String>58</sys:String>
+            <sys:String>62</sys:String>
+            <sys:String>64</sys:String>
+            <sys:String>66</sys:String>
+            <sys:String>70</sys:String>
+            <sys:String>72</sys:String>
+            <sys:String>74</sys:String>
+            <sys:String>78</sys:String>
+        </x:Array>
 
-        <DataTemplate x:Key="PredefinedSizeTable">
-            <ComboBoxItem Content="{Binding}"/>
-        </DataTemplate>
+        <ControlTemplate x:Key="ToggleButtonWhite" TargetType="ToggleButton">
+            <Grid ShowGridLines="False">
+                <Rectangle Fill="White"/>
+                <Border BorderThickness="1"/>
+                <ContentPresenter HorizontalAlignment="Center"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </ControlTemplate>
 
-        <CollectionViewSource Source="{Binding Source={x:Static Fonts.SystemFontFamilies}}" x:Key="Fonts"/>
+        <ControlTemplate x:Key="ToggleButtonBlack" TargetType="ToggleButton">
+            <Grid ShowGridLines="False">
+                <Rectangle Fill="Black"/>
+                <Border BorderThickness="1"/>
+                <ContentPresenter HorizontalAlignment="Center"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="ToggleButtonHoverBlack" TargetType="ToggleButton">
+            <Grid ShowGridLines="False">
+                <Rectangle Fill="Black"/>
+                <Border BorderThickness="2" BorderBrush="Red"/>
+                <ContentPresenter HorizontalAlignment="Center"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="ToggleButtonHoverWhite" TargetType="ToggleButton">
+            <Grid ShowGridLines="False">
+                <Rectangle Fill="White"/>
+                <Border BorderThickness="2" BorderBrush="Red"/>
+                <Border BorderThickness="1"/>
+                <ContentPresenter HorizontalAlignment="Center"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </ControlTemplate>
+
+        <Style x:Key="ToggleButtonStyle" TargetType="{x:Type ToggleButton}">
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="False">
+                    <Setter Property="Template" Value="{StaticResource ToggleButtonBlack}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Template" Value="{StaticResource ToggleButtonHoverBlack}"/>
+                </Trigger>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Template" Value="{StaticResource ToggleButtonWhite}"/>
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                        <Condition Property="IsChecked" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Template" Value="{StaticResource ToggleButtonHoverWhite}"/>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+        <local:InvertBool x:Key="InvertBool"/>
 
     </Window.Resources>
 
@@ -29,12 +115,12 @@
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*" />
-            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
 
         <Menu Grid.Row="0" Grid.ColumnSpan="2">
             <MenuItem Header="_File">
+                <MenuItem Header="_New" Command="{Binding NewProfile}"/>
                 <MenuItem Header="_Open" Command="{Binding OpenProfile}"/>
                 <MenuItem Header="_Save" Command="{Binding SaveProfile}"/>
                 <MenuItem Header="_Export">
@@ -44,14 +130,14 @@
                 <Separator />
                 <MenuItem Header="_Exit" Command="{Binding Close}" />
             </MenuItem>
-            <MenuItem Header="_Edit">
+            <!--<MenuItem Header="_Edit">
                 <MenuItem Header="_Undo" Command="Undo" />
                 <MenuItem Header="_Redo" Command="Redo" />
                 <Separator />
                 <MenuItem Header="_Cut" Command="Cut" />
                 <MenuItem Header="_Copy" Command="Copy" />
                 <MenuItem Header="_Paste" Command="Paste" />
-            </MenuItem>
+            </MenuItem>-->
             <MenuItem Header="_Help">
                 <MenuItem Header="_Contents" Command="Help" />
                 <!--<Separator />-->
@@ -59,198 +145,229 @@
             </MenuItem>
         </Menu>
 
-        <Grid Grid.Row="1" Grid.Column="0" Margin="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="32" />
-                <RowDefinition Height="32" />
-                <RowDefinition Height="32" />
-                <RowDefinition Height="1*" />
-            </Grid.RowDefinitions>
+        <Grid Grid.Row="1" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="0" Margin="2">
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="56"/>
-                    <ColumnDefinition Width="28"/>
-                    <ColumnDefinition Width="28"/>
-                    <ColumnDefinition Width="28"/>
-                </Grid.ColumnDefinitions>
-                <ComboBox
-                    Grid.Column="0"
-                    Height="24"
-                    ItemsSource="{Binding Source={StaticResource Fonts}}"
-                    Text="{Binding FontFamily}">
-                    <ComboBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel />
-                        </ItemsPanelTemplate>
-                    </ComboBox.ItemsPanel>
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding}" FontFamily="{Binding}" Height="22" VerticalAlignment="Stretch"/>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                <ComboBox
-                    Grid.Column="1" 
-                    Height="24"
-                    x:Name="FontSizeCombo"
-                    IsEditable="True"
-                    InputScope="Number"
-                    Text="{Binding FontSize}">
-                    <ComboBoxItem Content="6"/>
-                    <ComboBoxItem Content="7"/>
-                    <ComboBoxItem Content="8"/>
-                    <ComboBoxItem Content="9"/>
-                    <ComboBoxItem Content="10"/>
-                    <ComboBoxItem Content="11"/>
-                    <ComboBoxItem Content="12"/>
-                    <ComboBoxItem Content="14"/>
-                    <ComboBoxItem Content="16"/>
-                    <ComboBoxItem Content="18"/>
-                    <ComboBoxItem Content="20"/>
-                    <ComboBoxItem Content="21"/>
-                    <ComboBoxItem Content="24"/>
-                    <ComboBoxItem Content="28"/>
-                    <ComboBoxItem Content="30"/>
-                    <ComboBoxItem Content="36"/>
-                    <ComboBoxItem Content="40"/>
-                    <ComboBoxItem Content="42"/>
-                    <ComboBoxItem Content="48"/>
-                    <ComboBoxItem Content="54"/>
-                    <ComboBoxItem Content="60"/>
-                    <ComboBoxItem Content="72"/>
-                    <ComboBoxItem Content="78"/>
-                </ComboBox>
+                <StackPanel 
+                Grid.Row="0"
+                Margin="6 0 0 0"
+                x:Name="BitmapToolBox"
+                Orientation="Horizontal">
+                    <Button Height="24" Width="24" Margin="2" ToolTip="Up" Content="↑" Command="{Binding ClickUp}" />
+                    <Button Height="24" Width="24" Margin="2" ToolTip="Down" Content="↓" Command="{Binding ClickDown}" />
+                    <Button Height="24" Width="24" Margin="2" ToolTip="Left" Content="←" Command="{Binding ClickLeft}" />
+                    <Button Height="24" Width="24" Margin="2" ToolTip="Right" Content="→" Command="{Binding ClickRight}" />
+                    <Button Height="24" Margin="2" ToolTip="Update character image" Content="Update" Command="{Binding ImageUpdate}" />
+                </StackPanel>
 
-                <ToggleButton Grid.Column="2" x:Name="FontBoldToggle" Height="24" Width="24" IsChecked="{Binding FontBold}" Content="{StaticResource BoldImage}"/>
-                <ToggleButton Grid.Column="3" x:Name="FontItalicToggle" Height="24" Width="24" IsChecked="{Binding FontItalic}" Content="{StaticResource ItalicImage}"/>
-                <ToggleButton Grid.Column="4" x:Name="FontUnderLineToggle" Height="24" Width="24" IsChecked="{Binding FontUnderline}" Content="{StaticResource UnderLineImage}"/>
-
+                <Grid 
+                    x:Name="BitmapGrid"
+                    Grid.Row="1"
+                    Margin="8"
+                    ShowGridLines="False"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch" />
             </Grid>
 
-            <StackPanel Orientation="Horizontal" Grid.Row="1">
-                <TextBlock Text="Height" VerticalAlignment="Center" Padding="8 0 8 0"/>
-                <ComboBox
-                    Height="24"
-                    Width="48"
-                    IsEditable="True"
-                    InputScope="Number"
-                    Text="{Binding CharHeight}">
-                    <ComboBoxItem Content="8"/>
-                    <ComboBoxItem Content="9"/>
-                    <ComboBoxItem Content="10"/>
-                    <ComboBoxItem Content="11"/>
-                    <ComboBoxItem Content="12"/>
-                    <ComboBoxItem Content="14"/>
-                    <ComboBoxItem Content="16"/>
-                    <ComboBoxItem Content="18"/>
-                    <ComboBoxItem Content="20"/>
-                    <ComboBoxItem Content="21"/>
-                    <ComboBoxItem Content="24"/>
-                    <ComboBoxItem Content="28"/>
-                    <ComboBoxItem Content="30"/>
-                    <ComboBoxItem Content="36"/>
-                    <ComboBoxItem Content="40"/>
-                    <ComboBoxItem Content="42"/>
-                    <ComboBoxItem Content="48"/>
-                    <ComboBoxItem Content="54"/>
-                    <ComboBoxItem Content="60"/>
-                    <ComboBoxItem Content="72"/>
-                    <ComboBoxItem Content="78"/>
-                </ComboBox>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
 
-                <TextBlock Text="Width" VerticalAlignment="Center" Padding="8 0 8 0"/>
-                <ComboBox
-                    Height="24"
-                    Width="48"
-                    IsEditable="True"
-                    InputScope="Number"
-                    Text="{Binding CharWidth}">
-                    <ComboBoxItem Content="8"/>
-                    <ComboBoxItem Content="9"/>
-                    <ComboBoxItem Content="10"/>
-                    <ComboBoxItem Content="11"/>
-                    <ComboBoxItem Content="12"/>
-                    <ComboBoxItem Content="14"/>
-                    <ComboBoxItem Content="16"/>
-                    <ComboBoxItem Content="18"/>
-                    <ComboBoxItem Content="20"/>
-                    <ComboBoxItem Content="21"/>
-                    <ComboBoxItem Content="24"/>
-                    <ComboBoxItem Content="28"/>
-                    <ComboBoxItem Content="30"/>
-                    <ComboBoxItem Content="36"/>
-                    <ComboBoxItem Content="40"/>
-                    <ComboBoxItem Content="42"/>
-                    <ComboBoxItem Content="48"/>
-                    <ComboBoxItem Content="54"/>
-                    <ComboBoxItem Content="60"/>
-                    <ComboBoxItem Content="72"/>
-                    <ComboBoxItem Content="78"/>
-                </ComboBox>
+                <Grid.Resources>
+                    <FrameworkElement x:Key="proxy" />
+                </Grid.Resources>
+                <ContentControl Visibility="Collapsed" Content="{StaticResource proxy}" />
 
-                <Button Grid.Row="1" Height="24" Content="Paste Ascii" Click="PasteAscii_Click" Padding="8 0 8 0"/>
-            </StackPanel>
-
-            <Grid VerticalAlignment="Center" Grid.Row="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="48" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Threshold" Padding="0 0 8 0" />
-                <Slider Grid.Column="1" Minimum="0" Maximum="255" Value="{Binding BinaryThreshold}" />
-                <TextBlock Grid.Column="2" Text="{Binding BinaryThreshold}" />
-            </Grid>
-
-            <RichTextBox Grid.Row="3" Margin="2" x:Name="InputArea" TextChanged="InputArea_TextChanged" />
-
-        </Grid>
-
-        <Grid Grid.Row="1" Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-            </Grid.RowDefinitions>
-
-            <TabControl x:Name="tabControl" Grid.Row="0">
-                <TabItem Header="Image">
-                    <Image 
-                        x:Name="OutputArea"
-                        Grid.Row="1"
-                        Stretch="Uniform"
-                        RenderOptions.BitmapScalingMode="NearestNeighbor"
-                        SnapsToDevicePixels="True"
-                        StretchDirection="DownOnly" />
-                </TabItem>
-                <TabItem Header="List">
-                    <DataGrid ItemsSource="{Binding ConvertedImages}" AutoGenerateColumns="False">
-                        <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="View">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Image 
+                <DataGrid 
+                    Grid.Row="0"
+                    Margin="0 8 8 0"
+                    BorderThickness="1"
+                    ItemsSource="{Binding ConvertedImages, UpdateSourceTrigger=PropertyChanged}"
+                    SelectedItem="{Binding LastSelectedImage, Mode=OneWayToSource}"
+                    SelectedIndex="{Binding LastSelectedIndex, Mode=OneWayToSource}"
+                    CellEditEnding="DataGrid_CellEditEnding"
+                    SelectionMode="Single"
+                    AutoGenerateColumns="False"
+                    CanUserAddRows="False"
+                    CanUserDeleteRows="False" GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="View">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Image
                                             Source="{Binding View}"
                                             RenderOptions.BitmapScalingMode="NearestNeighbor"
                                             />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Char" Binding="{Binding Character}"/>
-                            <DataGridTextColumn Header="Hex value" Binding="{Binding Hex}" Width="1*">
-                                <DataGridTextColumn.ElementStyle>
-                                    <Style>
-                                        <Setter Property="TextBlock.TextWrapping" Value="Wrap"></Setter>
-                                    </Style>
-                                </DataGridTextColumn.ElementStyle>
-                            </DataGridTextColumn>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </TabItem>
-            </TabControl>
-        </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn 
+                                    Header="Character"
+                                    Binding="{Binding Character}" Width="1*"/>
+                        <DataGridTemplateColumn Header="Lock" Width="36">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox 
+                                        IsChecked="{Binding Locked, UpdateSourceTrigger=PropertyChanged}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
 
+                <ScrollViewer
+                            IsEnabled="{Binding RowSelectedView}"
+                            Grid.Row="1"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Disabled">
+                    <Grid Margin="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="5*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="4"/>
+
+                            <RowDefinition Height="1*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="FontFamily" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="FontSize" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="FontOptions" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="Width" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="8" Grid.Column="0" Text="Height" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="10" Grid.Column="0" Text="NewLine" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="12" Grid.Column="0" Text="Hex" VerticalAlignment="Center"/>
+
+                        <ComboBox  Grid.Row="0" Grid.Column="1"
+                                    ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
+                                    Text="{Binding EditFontFamily}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}">
+                            <ComboBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                            </ComboBox.ItemsPanel>
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock 
+                                                Text="{Binding}"
+                                                FontFamily="{Binding}"
+                                                VerticalAlignment="Stretch"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <ComboBox  Grid.Row="2" Grid.Column="1"
+                                    IsEditable="True"
+                                    InputScope="Number"
+                                    ItemsSource="{Binding Source={StaticResource SizeSelection}}"
+                                    Text="{Binding EditFontSize}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
+
+                        <StackPanel Grid.Row="4" Grid.Column="1"
+                                            Orientation="Horizontal">
+                            <ToggleButton
+                                            HorizontalAlignment="Left"
+                                            Height="24"
+                                            Width="24"
+                                            IsChecked="{Binding EditFontBold}"
+                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
+                                            FontWeight="Bold"
+                                            FontSize="14"
+                                            Content="B"
+                                            IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"
+                                            />
+
+                            <ToggleButton
+                                            HorizontalAlignment="Left"
+                                            Height="24"
+                                            Width="24"
+                                            Margin="4 0 0 0"
+                                            IsChecked="{Binding EditFontItalic}"
+                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
+                                            FontWeight="Bold"
+                                            FontStyle="Italic"
+                                            FontSize="14"
+                                            Content="I"
+                                            IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"
+                                            />
+
+                            <ToggleButton
+                                            HorizontalAlignment="Left"
+                                            Height="24"
+                                            Width="24"
+                                            Margin="4 0 0 0"
+                                            IsChecked="{Binding EditFontUnderline}"
+                                            FontFamily="{Binding Source={StaticResource LogoFont}}"
+                                            FontWeight="Bold"
+                                            FontSize="14"
+                                            IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"
+                                            >
+                                <TextBlock Text="U" TextDecorations="Underline"/>
+                            </ToggleButton>
+                        </StackPanel>
+
+                        <ComboBox  Grid.Row="6" Grid.Column="1"
+                                    IsEditable="True"
+                                    InputScope="Number"
+                                    IsReadOnly="True"
+                                    ItemsSource="{Binding Source={StaticResource SizeSelection}}"
+                                    Text="{Binding EditCharWidth}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
+
+                        <ComboBox  Grid.Row="8" Grid.Column="1"
+                                    IsEditable="True"
+                                    InputScope="Number"
+                                    IsReadOnly="True"
+                                    ItemsSource="{Binding Source={StaticResource SizeSelection}}"
+                                    Text="{Binding EditCharHeight}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
+
+                        <CheckBox Grid.Row="10" Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    IsChecked="{Binding EditNewLine}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
+
+                        <TextBox   Grid.Row="12" Grid.Column="1"
+                                    Grid.RowSpan="3"
+                                    TextWrapping="Wrap"
+                                    IsReadOnly="True"
+                                    Text="{Binding EditHexView}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
+
+                    </Grid>
+
+                </ScrollViewer>
+
+            </Grid>
+        </Grid>
     </Grid>
 
 </Window>
