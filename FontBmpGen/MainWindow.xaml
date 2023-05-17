@@ -104,6 +104,7 @@
         </Style>
 
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+        <local:InvertBool x:Key="InvertBool"/>
 
     </Window.Resources>
 
@@ -214,22 +215,21 @@
                         <DataGridTextColumn 
                                     Header="Character"
                                     Binding="{Binding Character}" Width="1*"/>
-                        <!--<DataGridTemplateColumn Header="Lock" Width="36">
+                        <DataGridTemplateColumn Header="Lock" Width="36">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <CheckBox 
-                                        IsChecked="{Binding Locked}"
+                                        IsChecked="{Binding Locked, UpdateSourceTrigger=PropertyChanged}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>-->
+                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
 
                 <ScrollViewer
-                            Visibility="{Binding RowSelectedView,
-                                         Converter={StaticResource BoolToVisibility}}"
+                            IsEnabled="{Binding RowSelectedView}"
                             Grid.Row="1"
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Disabled">
@@ -267,7 +267,8 @@
 
                         <ComboBox  Grid.Row="0" Grid.Column="1"
                                     ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
-                                    Text="{Binding EditFontFamily}">
+                                    Text="{Binding EditFontFamily}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}">
                             <ComboBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel />
@@ -287,7 +288,8 @@
                                     IsEditable="True"
                                     InputScope="Number"
                                     ItemsSource="{Binding Source={StaticResource SizeSelection}}"
-                                    Text="{Binding EditFontSize}"/>
+                                    Text="{Binding EditFontSize}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
 
                         <StackPanel Grid.Row="4" Grid.Column="1"
                                             Orientation="Horizontal">
@@ -300,6 +302,7 @@
                                             FontWeight="Bold"
                                             FontSize="14"
                                             Content="B"
+                                            IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"
                                             />
 
                             <ToggleButton
@@ -313,6 +316,7 @@
                                             FontStyle="Italic"
                                             FontSize="14"
                                             Content="I"
+                                            IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"
                                             />
 
                             <ToggleButton
@@ -324,6 +328,7 @@
                                             FontFamily="{Binding Source={StaticResource LogoFont}}"
                                             FontWeight="Bold"
                                             FontSize="14"
+                                            IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"
                                             >
                                 <TextBlock Text="U" TextDecorations="Underline"/>
                             </ToggleButton>
@@ -334,24 +339,28 @@
                                     InputScope="Number"
                                     IsReadOnly="True"
                                     ItemsSource="{Binding Source={StaticResource SizeSelection}}"
-                                    Text="{Binding EditCharWidth}"/>
+                                    Text="{Binding EditCharWidth}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
 
                         <ComboBox  Grid.Row="8" Grid.Column="1"
                                     IsEditable="True"
                                     InputScope="Number"
                                     IsReadOnly="True"
                                     ItemsSource="{Binding Source={StaticResource SizeSelection}}"
-                                    Text="{Binding EditCharHeight}"/>
+                                    Text="{Binding EditCharHeight}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
 
                         <CheckBox Grid.Row="10" Grid.Column="1"
                                     VerticalAlignment="Center"
-                                    IsChecked="{Binding EditNewLine}"/>
+                                    IsChecked="{Binding EditNewLine}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
 
                         <TextBox   Grid.Row="12" Grid.Column="1"
                                     Grid.RowSpan="3"
                                     TextWrapping="Wrap"
                                     IsReadOnly="True"
-                                    Text="{Binding EditHexView}"/>
+                                    Text="{Binding EditHexView}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
 
                     </Grid>
 

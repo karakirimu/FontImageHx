@@ -47,7 +47,18 @@ namespace FontBmpGen
         public bool FontUnderline { get; set; }
         public int BinaryThreshold { get; set; }
         public bool NewLine { get; set; }
-        public bool Locked { get; set; }
+        private bool _locked;
+        public bool Locked { 
+            get => _locked;
+            set
+            {
+                if (_locked != value)
+                {
+                    _locked = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public ImageProperty ShallowCopy()
         {

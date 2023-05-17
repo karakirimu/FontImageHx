@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 
@@ -24,7 +22,7 @@ namespace FontBmpGen
         private string _charWidth = "";
         private string _charHeight = "";
         private int _selectedIndex = -1;
-        private bool? _allSelected = false;
+        private bool _locked = false;
 
         private bool _rowselectedview;
         public bool RowSelectedView
@@ -87,6 +85,7 @@ namespace FontBmpGen
                 ConvertedImages.Clear();
                 foreach(var im in textWizard.Result)
                 {
+                    im.PropertyChanged += OnImagePropertyUpdated;
                     ConvertedImages.Add(im);
                 }
             });
@@ -121,6 +120,7 @@ namespace FontBmpGen
                     }
 
                     _textString += im.Character;
+                    im.PropertyChanged += OnImagePropertyUpdated;
                     ConvertedImages.Add(im);
                 }
 
@@ -324,6 +324,19 @@ namespace FontBmpGen
             }
         }
 
+        public bool IsLocked
+        {
+            get => _locked;
+            set
+            {
+                if (_locked != value)
+                {
+                    _locked = value;
+                    UpdateImageProperty((i) => { i.Locked = value; });
+                }
+            }
+        }
+
         public ImageProperty LastSelectedImage
         {
             get => _selectedImage;
@@ -336,6 +349,7 @@ namespace FontBmpGen
 
                 if (_selectedImage != value)
                 {
+                    RowSelectedView = true;
                     _selectedImage = value;
                     _fontFamily = value.FontFamily;
                     _fontSize = value.FontSize.ToString();
@@ -346,6 +360,7 @@ namespace FontBmpGen
                     _charHeight = value.CharHeight.ToString();
                     _hexView = value.Hex;
                     _newLine = value.NewLine;
+                    _locked = value.Locked;
                     OnPropertyChanged(nameof(EditFontFamily));
                     OnPropertyChanged(nameof(EditFontSize));
                     OnPropertyChanged(nameof(EditFontBold));
@@ -355,7 +370,7 @@ namespace FontBmpGen
                     OnPropertyChanged(nameof(EditCharHeight));
                     OnPropertyChanged(nameof(EditHexView));
                     OnPropertyChanged(nameof(EditNewLine));
-                    RowSelectedView = true;
+                    OnPropertyChanged(nameof(IsLocked));
                     OnPropertyChanged();
                     return;
                 }
@@ -375,22 +390,20 @@ namespace FontBmpGen
             }
         }
 
-        public bool? AllSelected
-        {
-            get => _allSelected;
-            set
-            {
-                if (_allSelected != value)
-                {
-                    _allSelected = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        private void OnImagePropertyUpdated(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is not ImageProperty)
+            {
+                return;
+            }
+
+            var im = (ImageProperty)sender;
+            LastSelectedImage = im.ShallowCopy();
+        }
     }
 }
