@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.Eventing.Reader;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -22,7 +23,36 @@ namespace FontBmpGen
         private string _charWidth = "";
         private string _charHeight = "";
         private int _selectedIndex = -1;
-        private bool _locked = false;
+        private bool _editLocked = false;
+
+        private bool _isEditing = false;
+        public bool IsEditing
+        {
+            get => _isEditing;
+            set
+            {
+                if(_isEditing != value)
+                {
+                    _isEditing = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string _windowTitle = "FontBitmapGenerator";
+        public string WindowTitle
+        {
+            get => _windowTitle;
+            set
+            {
+                if(_windowTitle != value)
+                {
+                    _windowTitle = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
 
         private bool _rowselectedview;
         public bool RowSelectedView
@@ -88,20 +118,23 @@ namespace FontBmpGen
                     im.PropertyChanged += OnImagePropertyUpdated;
                     ConvertedImages.Add(im);
                 }
+
+                WindowTitle = "Untitled - FontBitmapGenerator";
+                IsEditing = true;
             });
 
             OpenProfile = new WindowCommand((_) =>
             {
                 var profile = OpenSave.OpenProfile();
 
-                if(profile.Count == 0)
+                if(profile.Item2.Count == 0)
                 {
                     return;
                 }
 
                 ConvertedImages.Clear();
 
-                foreach (var im in profile)
+                foreach (var im in profile.Item2)
                 {
                     if(int.TryParse(im.CharWidth, out int width)
                         && int.TryParse(im.CharHeight, out int height))
@@ -125,6 +158,9 @@ namespace FontBmpGen
                 }
 
                 OnPropertyChanged(nameof(TextAreaString));
+
+                WindowTitle = $"{profile.Item1} - FontBitmapGenerator";
+                IsEditing = true;
             });
 
             SaveProfile = new WindowCommand((_) =>
@@ -326,12 +362,12 @@ namespace FontBmpGen
 
         public bool IsLocked
         {
-            get => _locked;
+            get => _editLocked;
             set
             {
-                if (_locked != value)
+                if (_editLocked != value)
                 {
-                    _locked = value;
+                    _editLocked = value;
                     UpdateImageProperty((i) => { i.Locked = value; });
                 }
             }
@@ -360,7 +396,7 @@ namespace FontBmpGen
                     _charHeight = value.CharHeight.ToString();
                     _hexView = value.Hex;
                     _newLine = value.NewLine;
-                    _locked = value.Locked;
+                    _editLocked = value.Locked;
                     OnPropertyChanged(nameof(EditFontFamily));
                     OnPropertyChanged(nameof(EditFontSize));
                     OnPropertyChanged(nameof(EditFontBold));

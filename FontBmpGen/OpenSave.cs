@@ -11,7 +11,7 @@ namespace FontBmpGen
     {
         public OpenSave() { }
 
-        public static List<ImageProperty> OpenProfile()
+        public static (string, List<ImageProperty>) OpenProfile()
         {
             OpenFileDialog openFileDialog = new()
             {
@@ -26,11 +26,11 @@ namespace FontBmpGen
 
                 if(profile != null )
                 {
-                    return profile;
+                    return (Path.GetFileName(openFileDialog.FileName), profile);
                 }
             }
 
-            return new List<ImageProperty>();
+            return (string.Empty , new List<ImageProperty>());
         }
 
         public static void SaveProfile(IReadOnlyList<ImageProperty> images)

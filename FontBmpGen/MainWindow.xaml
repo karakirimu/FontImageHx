@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:FontBmpGen"
         d:DataContext="{d:DesignInstance Type=local:MainViewModel}"
         mc:Ignorable="d"
-        Title="FontBitmapGenerator" Height="600" Width="800">
+        Title="{Binding WindowTitle}" Height="600" Width="800">
 
     <Window.Resources>
         <FontFamily x:Key="LogoFont">Segoe UI</FontFamily>
@@ -122,8 +122,8 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_New" Command="{Binding NewProfile}"/>
                 <MenuItem Header="_Open" Command="{Binding OpenProfile}"/>
-                <MenuItem Header="_Save" Command="{Binding SaveProfile}"/>
-                <MenuItem Header="_Export">
+                <MenuItem Header="_Save" Command="{Binding SaveProfile}" IsEnabled="{Binding IsEditing}"/>
+                <MenuItem Header="_Export" IsEnabled="{Binding IsEditing}">
                     <MenuItem Header="_Bitmap" Command="{Binding SaveBitmap}"/>
                     <MenuItem Header="_C Header" Command="{Binding SaveCHex}"/>
                 </MenuItem>
