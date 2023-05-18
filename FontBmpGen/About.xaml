@@ -4,8 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FontBmpGen"
+        d:DataContext="{d:DesignInstance Type=local:AboutWindowViewModel}"
         mc:Ignorable="d"
-        Title="About" Height="200" Width="300">
+        ResizeMode="NoResize"
+        Title="About" Height="230" Width="400"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
     <Grid Margin="8">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="80"/>
@@ -13,18 +17,48 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
             <RowDefinition Height="32"/>
         </Grid.RowDefinitions>
 
-        <TextBlock 
+        <StackPanel 
+            Orientation="Vertical"
             Grid.Column="0"
             Grid.Row="0"
-            Grid.ColumnSpan="2"
-            VerticalAlignment="Center"
-            HorizontalAlignment="Center"
-            Text="FontBitmapGenerator v 1.00"
-            />
+            Grid.ColumnSpan="2">
+
+            <TextBlock 
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                FontSize="20"
+                Margin="0 8"
+                Text="{Binding SoftwareVersion, FallbackValue='FontBitmapGenerator'}"/>
+            <TextBlock 
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                TextWrapping="WrapWithOverflow"
+                Margin="0 0 0 4"
+                FontSize="14"
+                Text="This software can easily creates fixed-size bitmap font resources."/>
+            <TextBlock
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                TextWrapping="WrapWithOverflow"
+                Margin="0 0 0 4"
+                FontSize="14">
+                
+                <Hyperlink NavigateUri="https://github.com/karakirimu/FontBitmapGenerator"
+                           RequestNavigate="Hyperlink_RequestNavigate">
+                    https://github.com/karakirimu/FontBitmapGenerator
+                </Hyperlink>
+            </TextBlock>
+            <TextBlock 
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                TextWrapping="WrapWithOverflow"
+                Margin="0 0 0 4"
+                FontSize="14"
+                Text="Made by karakirimu"/>            
+        </StackPanel>
 
         <StackPanel
             Grid.Row="12"
