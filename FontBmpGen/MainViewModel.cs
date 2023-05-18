@@ -75,6 +75,7 @@ namespace FontBmpGen
 
         public ObservableCollection<ImageProperty> ConvertedImages { get; set; }
         public WindowCommand Close { get; init; }
+        public WindowCommand About { get; init; }
         public WindowCommand SaveBitmap { get; init; }
         public WindowCommand SaveCHex { get; init; }
         public WindowCommand NewProfile { get; init; }
@@ -211,6 +212,15 @@ namespace FontBmpGen
 
                 ConvertedImages[LastSelectedIndex] = w;
                 LastSelectedImage = w;
+            });
+
+            About = new WindowCommand((_) =>
+            {
+                AboutWindow window = new()
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                window.Show();
             });
         }
 
