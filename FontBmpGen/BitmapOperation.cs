@@ -200,7 +200,7 @@ namespace FontBmpGen
                         result[y] = new byte[w];
                     }
 
-                    result[y][x] = Convert.ToByte(hexValues[y*w + x], 16);
+                    result[y][x] = Convert.ToByte(hexValues[y * w + x], 16);
                 }
             }
 
@@ -224,7 +224,7 @@ namespace FontBmpGen
             {
                 for (int x = 0; x < charwidth; x++)
                 {
-                    bitmap.SetPixel(x, y, bytedata[y][x] != 0? Color.White : Color.Black);
+                    bitmap.SetPixel(x, y, bytedata[y][x] != 0 ? Color.White : Color.Black);
                 }
             }
 
@@ -245,7 +245,7 @@ namespace FontBmpGen
                 Italic = prop.FontItalic,
                 Underline = prop.FontUnderline
             };
-            return CreateImageList(text,config);
+            return CreateImageList(text, config);
         }
 
         public static List<ImageProperty> CreateImageList(string text, FontAdjustConfig config)
@@ -266,7 +266,7 @@ namespace FontBmpGen
                 }
                 if (c == '\n')
                 {
-                    if(result.Count > 0)
+                    if (result.Count > 0)
                     {
                         offsetY += int.Parse(result[^1].CharHeight);
                     }
@@ -311,7 +311,7 @@ namespace FontBmpGen
             FontAdjustConfig config = new()
             {
                 SingleCharWidth = int.TryParse(prop.CharWidth, out int charwidth) ? charwidth : int.Parse(def.CharWidth),
-                SingleCharHeight = int.TryParse(prop.CharHeight, out int charheight) ? charheight: int.Parse(def.CharHeight),
+                SingleCharHeight = int.TryParse(prop.CharHeight, out int charheight) ? charheight : int.Parse(def.CharHeight),
                 FontFamily = prop.FontFamily,
                 FontSize = int.TryParse(prop.FontSize, out int fontsize) ? fontsize : int.Parse(def.FontSize),
                 Bold = prop.FontBold,
@@ -406,7 +406,8 @@ namespace FontBmpGen
         /// <returns>Binarized bitmap</returns>
         public static Bitmap BinarizeOtsu(Bitmap bitmap, int threshold)
         {
-            var variance = (double[] data) => {
+            var variance = (double[] data) =>
+            {
                 double mean = data.Sum() / data.Length;
                 double sumOfSquaredDifferences = 0;
 

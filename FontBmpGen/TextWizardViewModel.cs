@@ -6,7 +6,7 @@ namespace FontBmpGen
 {
     public class TextWizardViewModel : INotifyPropertyChanged
     {
-        public TextWizardViewModel() 
+        public TextWizardViewModel()
         {
             editFontFamily = SystemFonts.DefaultFont.FontFamily.Name;
             editFontSize = 12;

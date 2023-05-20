@@ -1,8 +1,7 @@
 ﻿using System.Windows;
-using System.Windows.Controls.Primitives;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Threading.Tasks;
 
 namespace FontBmpGen
 {
@@ -97,14 +96,14 @@ namespace FontBmpGen
 
         private void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(sender is not MainViewModel)
+            if (sender is not MainViewModel)
             {
                 return;
             }
 
             var vm = (MainViewModel)sender;
 
-            if(e.PropertyName == "LastSelectedImage")
+            if (e.PropertyName == "LastSelectedImage")
             {
                 CreateEditControl(vm);
                 return;
@@ -124,7 +123,7 @@ namespace FontBmpGen
                         var el = (TextBox)e.EditingElement;
                         var vm = (MainViewModel)DataContext;
 
-                        if(el.Text.Length > 0)
+                        if (el.Text.Length > 0)
                         {
                             var item = BitmapOperation.UpdateCharacterProperty(
                                 el.Text[0], vm.ConvertedImages[rowIndex].ShallowCopy());

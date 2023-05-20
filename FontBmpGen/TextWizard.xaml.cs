@@ -42,17 +42,17 @@ namespace FontBmpGen
                 return;
             }
 
-            List<ImageProperty> p 
+            List<ImageProperty> p
                 = BitmapOperation.CreateImageList(vm.TextAreaString, new FontAdjustConfig()
-            {
-                FontFamily = vm.EditFontFamily,
-                FontSize = vm.EditFontSize,
-                Bold = vm.EditFontBold,
-                Italic = vm.EditFontItalic,
-                Underline = vm.EditFontUnderline,
-                SingleCharWidth = vm.EditCharWidth,
-                SingleCharHeight = vm.EditCharHeight
-            });
+                {
+                    FontFamily = vm.EditFontFamily,
+                    FontSize = vm.EditFontSize,
+                    Bold = vm.EditFontBold,
+                    Italic = vm.EditFontItalic,
+                    Underline = vm.EditFontUnderline,
+                    SingleCharWidth = vm.EditCharWidth,
+                    SingleCharHeight = vm.EditCharHeight
+                });
 
             OutputArea.Source = BitmapOperation.ConvertImage(BitmapOperation.CombineImage(p));
             Result = new ObservableCollection<ImageProperty>(p);

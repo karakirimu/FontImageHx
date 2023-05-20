@@ -48,7 +48,8 @@ namespace FontBmpGen
         public int BinaryThreshold { get; set; }
         public bool NewLine { get; set; }
         private bool _locked;
-        public bool Locked { 
+        public bool Locked
+        {
             get => _locked;
             set
             {

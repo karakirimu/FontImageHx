@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -9,7 +8,7 @@ namespace FontBmpGen
 {
     public class AboutWindowViewModel : INotifyPropertyChanged
     {
-        public AboutWindowViewModel() 
+        public AboutWindowViewModel()
         {
             System.Reflection.Assembly assembly
                 = System.Reflection.Assembly.GetExecutingAssembly();

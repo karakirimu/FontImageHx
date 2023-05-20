@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics.Eventing.Reader;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls.Primitives;
@@ -31,7 +30,7 @@ namespace FontBmpGen
             get => _isEditing;
             set
             {
-                if(_isEditing != value)
+                if (_isEditing != value)
                 {
                     _isEditing = value;
                     OnPropertyChanged();
@@ -45,7 +44,7 @@ namespace FontBmpGen
             get => _windowTitle;
             set
             {
-                if(_windowTitle != value)
+                if (_windowTitle != value)
                 {
                     _windowTitle = value;
                     OnPropertyChanged();
@@ -114,7 +113,7 @@ namespace FontBmpGen
                 }
 
                 ConvertedImages.Clear();
-                foreach(var im in textWizard.Result)
+                foreach (var im in textWizard.Result)
                 {
                     im.PropertyChanged += OnImagePropertyUpdated;
                     ConvertedImages.Add(im);
@@ -128,7 +127,7 @@ namespace FontBmpGen
             {
                 var profile = OpenSave.OpenProfile();
 
-                if(profile.Item2.Count == 0)
+                if (profile.Item2.Count == 0)
                 {
                     return;
                 }
@@ -137,7 +136,7 @@ namespace FontBmpGen
 
                 foreach (var im in profile.Item2)
                 {
-                    if(int.TryParse(im.CharWidth, out int width)
+                    if (int.TryParse(im.CharWidth, out int width)
                         && int.TryParse(im.CharHeight, out int height))
                     {
                         im.ViewSource = BitmapOperation.FromSequential(
@@ -189,9 +188,9 @@ namespace FontBmpGen
                 BitmapCanvas.Move(ToggleButtonMap, MoveDirection.Right);
             });
 
-            ImageUpdate = new WindowCommand((_) => 
+            ImageUpdate = new WindowCommand((_) =>
             {
-                if(LastSelectedIndex < 0)
+                if (LastSelectedIndex < 0)
                 {
                     return;
                 }
@@ -388,7 +387,7 @@ namespace FontBmpGen
             get => _selectedImage;
             set
             {
-                if(value == null)
+                if (value == null)
                 {
                     return;
                 }
@@ -428,7 +427,7 @@ namespace FontBmpGen
             get => _selectedIndex;
             set
             {
-                if(value < 0)
+                if (value < 0)
                 {
                     return;
                 }

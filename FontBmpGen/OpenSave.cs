@@ -24,13 +24,13 @@ namespace FontBmpGen
                 List<ImageProperty>? profile
                     = JsonSerializer.Deserialize<List<ImageProperty>>(json);
 
-                if(profile != null )
+                if (profile != null)
                 {
                     return (Path.GetFileName(openFileDialog.FileName), profile);
                 }
             }
 
-            return (string.Empty , new List<ImageProperty>());
+            return (string.Empty, new List<ImageProperty>());
         }
 
         public static void SaveProfile(IReadOnlyList<ImageProperty> images)
