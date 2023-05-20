@@ -61,7 +61,7 @@ namespace FontBmpGen
             return result;
         }
 
-        public static void Move(ToggleButton[][] buttonMap, MoveDirection direction)
+        public static void Move(ToggleButton[][]? buttonMap, MoveDirection direction)
         {
             if (buttonMap == null)
             {

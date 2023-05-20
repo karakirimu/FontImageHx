@@ -50,8 +50,13 @@ namespace FontBmpGen
             BitmapGrid.ColumnDefinitions.Clear();
             BitmapGrid.Children.Clear();
 
-            ToggleButton[][] toggle
+            ToggleButton[][]? toggle
                 = BitmapCanvas.CreateToggleButtonMap(vm.LastSelectedImage);
+
+            if(toggle == null)
+            {
+                return;
+            }
 
             if (!(int.TryParse(vm.LastSelectedImage.CharWidth, out int width)
                     && int.TryParse(vm.LastSelectedImage.CharHeight, out int height)))

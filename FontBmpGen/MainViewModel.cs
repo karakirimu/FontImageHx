@@ -190,7 +190,7 @@ namespace FontBmpGen
 
             ImageUpdate = new WindowCommand((_) =>
             {
-                if (LastSelectedIndex < 0)
+                if (LastSelectedIndex < 0 || ToggleButtonMap == null)
                 {
                     return;
                 }
@@ -223,7 +223,7 @@ namespace FontBmpGen
             });
         }
 
-        public ToggleButton[][] ToggleButtonMap
+        public ToggleButton[][]? ToggleButtonMap
         {
             get => _toggleButtonMap;
             set
