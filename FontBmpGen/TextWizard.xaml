@@ -149,14 +149,12 @@
         <ComboBox  Grid.Row="6" Grid.Column="1"
                                     IsEditable="True"
                                     InputScope="Number"
-                                    IsReadOnly="True"
                                     ItemsSource="{Binding Source={StaticResource SizeSelection}}"
                                     Text="{Binding EditCharWidth}"/>
 
         <ComboBox  Grid.Row="8" Grid.Column="1"
                                     IsEditable="True"
                                     InputScope="Number"
-                                    IsReadOnly="True"
                                     ItemsSource="{Binding Source={StaticResource SizeSelection}}"
                                     Text="{Binding EditCharHeight}"/>
 
