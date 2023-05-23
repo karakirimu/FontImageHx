@@ -7,11 +7,24 @@ using System.Text.Json;
 
 namespace FontBmpGen
 {
+    internal class Profile
+    {
+        public Profile(IReadOnlyList<ImageProperty> image)
+        {
+            Version = "1.00";
+            Image = image;
+        }
+
+        public string Version { get; init; }
+
+        public IReadOnlyList<ImageProperty> Image { get; init; }
+    }
+
     internal class OpenSave
     {
         public OpenSave() { }
 
-        public static (string, List<ImageProperty>) OpenProfile()
+        public static (string, IReadOnlyList<ImageProperty>) OpenProfile()
         {
             OpenFileDialog openFileDialog = new()
             {
@@ -21,12 +34,12 @@ namespace FontBmpGen
             if (openFileDialog.ShowDialog() == true)
             {
                 string json = File.ReadAllText(openFileDialog.FileName);
-                List<ImageProperty>? profile
-                    = JsonSerializer.Deserialize<List<ImageProperty>>(json);
+                Profile? profile
+                    = JsonSerializer.Deserialize<Profile>(json);
 
                 if (profile != null)
                 {
-                    return (Path.GetFileName(openFileDialog.FileName), profile);
+                    return (Path.GetFileName(openFileDialog.FileName), profile.Image);
                 }
             }
 
@@ -45,7 +58,8 @@ namespace FontBmpGen
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                string json = JsonSerializer.Serialize(images);
+                Profile profile = new Profile(images);
+                string json = JsonSerializer.Serialize(profile);
                 File.WriteAllText(saveFileDialog.FileName, json);
             }
         }
