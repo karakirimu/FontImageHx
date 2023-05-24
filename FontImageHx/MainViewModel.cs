@@ -1,11 +1,12 @@
-﻿using System;
+﻿using FontImageHx;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 
-namespace FontBmpGen
+namespace FontImageHx
 {
     internal class MainViewModel : INotifyPropertyChanged
     {

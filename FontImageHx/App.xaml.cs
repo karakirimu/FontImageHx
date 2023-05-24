@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace FontBmpGen
+namespace FontImageHx
 {
     /// <summary>
     /// Interaction logic for App.xaml

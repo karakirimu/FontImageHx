@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using FontImageHx;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
-namespace FontBmpGen
+namespace FontImageHx
 {
     /// <summary>
     /// TextWizard.xaml の相互作用ロジック

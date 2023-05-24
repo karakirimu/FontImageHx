@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 
-namespace FontBmpGen
+namespace FontImageHx
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -53,7 +53,7 @@ namespace FontBmpGen
             ToggleButton[][]? toggle
                 = BitmapCanvas.CreateToggleButtonMap(vm.LastSelectedImage);
 
-            if(toggle == null)
+            if (toggle == null)
             {
                 return;
             }

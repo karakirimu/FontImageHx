@@ -1,10 +1,11 @@
-﻿using System.ComponentModel;
+﻿using FontImageHx;
+using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using System.Windows.Media.Imaging;
 
-namespace FontBmpGen
+namespace FontImageHx
 {
     public class ImageProperty : INotifyPropertyChanged
     {
