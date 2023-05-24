@@ -6,15 +6,15 @@ This software can convert installed fonts to binary bitmaps or hexadecimal byte 
 
 1. Select File -> New in Menu
    
-   ![](https://github.com/karakirimu/FontImageHx/blob/Image/screenshot/MainWindow_2.png?raw=true)
+   ![](https://github.com/karakirimu/FontImageHx/blob/Image/screenshot/MainWindow_1.png?raw=true)
 
 2. Set the font size, etc., then press the Paste ascii button, followed by the OK button.
    
-   ![](https://github.com/karakirimu/FontImageHx/blob/Image/screenshot/TextWizard_4.png?raw=true)
+   ![](https://github.com/karakirimu/FontImageHx/blob/Image/screenshot/TextWizard_1.png?raw=true)
 
 3. The text set (ascii) in the table is displayed. it can edit by row selection. The left area is updated by pressing Update.
    
-   ![](https://github.com/karakirimu/FontImageHx/blob/Image/screenshot/MainWindow_6.png?raw=true)
+   ![](https://github.com/karakirimu/FontImageHx/blob/Image/screenshot/MainWindow_2.png?raw=true)
 
    4. It can export to C-header or Bitmap image from File -> Export.
 
