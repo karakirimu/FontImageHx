@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FontBmpGen\FontBmpGen.csproj" />
+    <ProjectReference Include="..\FontImageHx\FontImageHx.csproj" />
   </ItemGroup>
 
 </Project>

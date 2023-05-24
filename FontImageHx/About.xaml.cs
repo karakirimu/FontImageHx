@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Navigation;
 
-namespace FontBmpGen
+namespace FontImageHx
 {
     public class AboutWindowViewModel : INotifyPropertyChanged
     {

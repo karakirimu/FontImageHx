@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FontBmpGen", "FontBmpGen\FontBmpGen.csproj", "{62ABD404-9B5D-4DE8-8C1E-BA257155B628}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FontImageHx", "FontImageHx\FontImageHx.csproj", "{62ABD404-9B5D-4DE8-8C1E-BA257155B628}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontBmpGenTest", "FontBmpGenTest\FontBmpGenTest.csproj", "{0E4A8920-EEDA-433D-B4D7-95E979C859AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FontImageHxTest", "FontImageHxTest\FontImageHxTest.csproj", "{0E4A8920-EEDA-433D-B4D7-95E979C859AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

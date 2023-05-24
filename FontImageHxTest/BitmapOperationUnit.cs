@@ -1,6 +1,6 @@
-using FontBmpGen;
+using FontImageHx;
 
-namespace FontBmpGenTest
+namespace FontImageHxTest
 {
     [TestFixture]
     public class BitmapOperationUnit : BitmapOperation

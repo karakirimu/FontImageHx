@@ -1,11 +1,12 @@
-﻿using Microsoft.Win32;
+﻿using FontImageHx;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Text.Json;
 
-namespace FontBmpGen
+namespace FontImageHx
 {
     internal class Profile
     {

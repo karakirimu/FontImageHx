@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace FontBmpGen
+namespace FontImageHx
 {
 
     [ValueConversion(typeof(bool), typeof(bool))]

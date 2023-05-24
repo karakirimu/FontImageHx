@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace FontBmpGen
+namespace FontImageHx
 {
     public class WindowCommand : ICommand
     {

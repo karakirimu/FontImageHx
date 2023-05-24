@@ -1,7 +1,8 @@
-﻿using System.Drawing;
+﻿using FontImageHx;
+using System.Drawing;
 using System.Windows.Controls.Primitives;
 
-namespace FontBmpGen
+namespace FontImageHx
 {
     internal enum MoveDirection
     {

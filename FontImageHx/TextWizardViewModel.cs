@@ -1,8 +1,9 @@
-﻿using System.ComponentModel;
+﻿using FontImageHx;
+using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
-namespace FontBmpGen
+namespace FontImageHx
 {
     public class TextWizardViewModel : INotifyPropertyChanged
     {
