@@ -38,7 +38,7 @@ namespace FontBmpGen
             }
         }
 
-        private string _windowTitle = "FontBitmapGenerator";
+        private string _windowTitle = "FontImageHx";
         public string WindowTitle
         {
             get => _windowTitle;
@@ -119,7 +119,7 @@ namespace FontBmpGen
                     ConvertedImages.Add(im);
                 }
 
-                WindowTitle = "Untitled - FontBitmapGenerator";
+                WindowTitle = "Untitled - FontImageHx";
                 IsEditing = true;
             });
 
@@ -159,7 +159,7 @@ namespace FontBmpGen
 
                 OnPropertyChanged(nameof(TextAreaString));
 
-                WindowTitle = $"{profile.Item1} - FontBitmapGenerator";
+                WindowTitle = $"{profile.Item1} - FontImageHx";
                 IsEditing = true;
             });
 
