@@ -14,7 +14,7 @@ namespace FontBmpGen
                 = System.Reflection.Assembly.GetExecutingAssembly();
             System.Diagnostics.FileVersionInfo fvi
                 = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
-            _softwareVersion = $"FontBitmapGenerator v{fvi.ProductVersion}";
+            _softwareVersion = $"FontImageHx v{fvi.ProductVersion}";
         }
 
         private string _softwareVersion;
