@@ -29,7 +29,7 @@ namespace FontImageHx
         {
             OpenFileDialog openFileDialog = new()
             {
-                Filter = "Profile (*.fbp)|*.fbp|All Files (*.*)|*.*",
+                Filter = "Profile (*.fip)|*.fip|All Files (*.*)|*.*",
             };
 
             if (openFileDialog.ShowDialog() == true)
@@ -51,8 +51,8 @@ namespace FontImageHx
         {
             SaveFileDialog saveFileDialog = new()
             {
-                Filter = "Profile (*.fbp)|*.fbp|All Files (*.*)|*.*",
-                DefaultExt = "fbp",
+                Filter = "Profile (*.fip)|*.fip|All Files (*.*)|*.*",
+                DefaultExt = "fip",
                 AddExtension = true,
                 FileName = $"profile_font"
             };
