@@ -16,7 +16,7 @@ namespace FontImageHxTest
         public void ToBit2(byte[] test, byte expected)
         {
             byte[][] target = new byte[][] { test };
-            var converted = ByteToBit(target);
+            var converted = ByteToBitHorizontal(target);
             Assert.That(converted[0][0], Is.EqualTo(expected));
         }
 
@@ -26,7 +26,7 @@ namespace FontImageHxTest
         public void ToBit3(byte[] test, byte expected)
         {
             byte[][] target = new byte[][] { test };
-            var converted = ByteToBit(target);
+            var converted = ByteToBitHorizontal(target);
             Assert.That(converted[0][0], Is.EqualTo(expected));
         }
 
@@ -37,7 +37,7 @@ namespace FontImageHxTest
         public void ToBit4(byte[] test, byte expected)
         {
             byte[][] target = new byte[][] { test };
-            var converted = ByteToBit(target);
+            var converted = ByteToBitHorizontal(target);
             Assert.That(converted[0][0], Is.EqualTo(expected));
         }
 
@@ -49,7 +49,7 @@ namespace FontImageHxTest
         public void ToBit5(byte[] test, byte expected)
         {
             byte[][] target = new byte[][] { test };
-            var converted = ByteToBit(target);
+            var converted = ByteToBitHorizontal(target);
             Assert.That(converted[0][0], Is.EqualTo(expected));
         }
 
@@ -62,7 +62,7 @@ namespace FontImageHxTest
         public void ToBit6(byte[] test, byte expected)
         {
             byte[][] target = new byte[][] { test };
-            var converted = ByteToBit(target);
+            var converted = ByteToBitHorizontal(target);
             Assert.That(converted[0][0], Is.EqualTo(expected));
         }
 
@@ -76,7 +76,7 @@ namespace FontImageHxTest
         public void ToBit7(byte[] test, byte expected)
         {
             byte[][] target = new byte[][] { test };
-            var converted = ByteToBit(target);
+            var converted = ByteToBitHorizontal(target);
             Assert.That(converted[0][0], Is.EqualTo(expected));
         }
 
@@ -91,7 +91,7 @@ namespace FontImageHxTest
         public void ToBit8(byte[] test, byte expected)
         {
             byte[][] target = new byte[][] { test };
-            var converted = ByteToBit(target);
+            var converted = ByteToBitHorizontal(target);
             Assert.That(converted[0][0], Is.EqualTo(expected));
         }
 
@@ -111,7 +111,7 @@ namespace FontImageHxTest
         public void ToBit12(byte[] test, byte[] expected)
         {
             byte[][] target = new byte[][] { test };
-            var converted = ByteToBit(target);
+            var converted = ByteToBitHorizontal(target);
             Assert.That(converted[0][0], Is.EqualTo(expected[0]));
             Assert.That(converted[0][1], Is.EqualTo(expected[1]));
         }
@@ -135,7 +135,7 @@ namespace FontImageHxTest
         public void ToBit16(byte[] test, byte[] expected)
         {
             byte[][] target = new byte[][] { test };
-            var converted = ByteToBit(target);
+            var converted = ByteToBitHorizontal(target);
             Assert.That(converted[0][0], Is.EqualTo(expected[0]));
             Assert.That(converted[0][1], Is.EqualTo(expected[1]));
         }

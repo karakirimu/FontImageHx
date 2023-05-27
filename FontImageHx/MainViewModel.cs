@@ -198,7 +198,7 @@ namespace FontImageHx
 
                 byte[][] bitmapbyte = BitmapCanvas.ToggleToByte(ToggleButtonMap);
                 string hexdata = BitmapOperation.ToSequential(
-                    BitmapOperation.ByteToBit(bitmapbyte));
+                    BitmapOperation.ByteToBitHorizontal(bitmapbyte));
                 ImageProperty w = ConvertedImages[LastSelectedIndex].ShallowCopy();
 
                 if (int.TryParse(LastSelectedImage.CharWidth, out int width)

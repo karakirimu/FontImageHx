@@ -512,7 +512,7 @@ namespace FontImageHx
                 }
             }
 
-            return ByteToBit(result);
+            return ByteToBitHorizontal(result);
         }
 
         /// <summary>
@@ -549,7 +549,7 @@ namespace FontImageHx
         /// </summary>
         /// <param name="bitmap">binarized bitmap</param>
         /// <returns></returns>
-        public static byte[][] ByteToBit(byte[][] bitmap)
+        public static byte[][] ByteToBitHorizontal(byte[][] bitmap)
         {
             int w = (bitmap[0].Length / 8) + Convert.ToInt32(bitmap[0].Length % 8 > 0);
             int h = bitmap.Length;
