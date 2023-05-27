@@ -53,7 +53,7 @@ Download the zip file from Release, extract and run it. .NET 6.0 runtime is requ
 ## Environment
 
 - NET 6.0
-- Only x64 is available
+- Built on Any CPU profile
 - Windows 11 pro 22H2
 
 ## License
