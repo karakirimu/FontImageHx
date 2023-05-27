@@ -84,6 +84,7 @@
         <TextBlock Grid.Row="0" Grid.Column="3" Grid.RowSpan="2" Text="Preview" VerticalAlignment="Center"/>
 
         <ComboBox  Grid.Row="0" Grid.Column="1"
+                IsEditable="True"
                 ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
                 Text="{Binding EditFontFamily}">
             <ComboBox.ItemsPanel>

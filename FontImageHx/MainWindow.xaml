@@ -264,6 +264,7 @@
                         <TextBlock Grid.Row="12" Grid.Column="0" Text="Hex" VerticalAlignment="Center"/>
 
                         <ComboBox  Grid.Row="0" Grid.Column="1"
+                                    IsEditable="True"
                                     ItemsSource="{Binding Source={x:Static Fonts.SystemFontFamilies}}"
                                     Text="{Binding EditFontFamily}"
                                     IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}">
