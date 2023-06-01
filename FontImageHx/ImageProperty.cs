@@ -19,7 +19,8 @@ namespace FontImageHx
             NewLine = false;
             CharWidth = "16";
             CharHeight = "16";
-            Hex = string.Empty;
+            HexHorizontal = string.Empty;
+            HexVertical = string.Empty;
             BinaryThreshold = 128;
         }
 
@@ -38,7 +39,8 @@ namespace FontImageHx
             }
         }
         public char Character { get; set; }
-        public string Hex { get; set; }
+        public string HexHorizontal { get; set; }
+        public string HexVertical { get; set; }
         public string FontSize { get; set; }
         public string CharWidth { get; set; }
         public string CharHeight { get; set; }

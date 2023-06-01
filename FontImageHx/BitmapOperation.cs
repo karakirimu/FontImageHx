@@ -6,6 +6,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.IO;
 using System.Linq;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
 
@@ -185,7 +186,14 @@ namespace FontImageHx
             return result.Remove(result.Length - 1);
         }
 
-        protected static byte[][] ToShrinkedBitmap(string sequential, int width, int height)
+        /// <summary>
+        /// Converts a sequential bitmap hex string to a width-compressed 2D array
+        /// </summary>
+        /// <param name="sequential">Comma separated hexadecimal string</param>
+        /// <param name="width">Converted bitmap width</param>
+        /// <param name="height">Converted bitmap height</param>
+        /// <returns>width-compressed 2D array</returns>
+        public static byte[][] ToShrinkedBitmapHorizontal(string sequential, int width, int height)
         {
             string[] hexValues = sequential.Split(',');
             int w = width / 8 + ((width % 8 > 0) ? 1 : 0);
@@ -216,8 +224,8 @@ namespace FontImageHx
 
         public static Bitmap FromSequential(string hex, int charwidth, int charheight)
         {
-            byte[][] image = ToShrinkedBitmap(hex, charwidth, charheight);
-            byte[][] bytedata = BitToByte(image, charwidth);
+            byte[][] image = ToShrinkedBitmapHorizontal(hex, charwidth, charheight);
+            byte[][] bytedata = BitToByteHorizontal(image, charwidth);
 
             Bitmap bitmap = new(charwidth, charheight);
 
@@ -301,7 +309,8 @@ namespace FontImageHx
 
             prop.ViewSource = bm;
             prop.Character = c;
-            prop.Hex = ToSequential(BinaryImageToHexBytes(bm));
+            prop.HexHorizontal = ToSequential(BinaryImageToHexBytes(bm, Orientation.Horizontal));
+            prop.HexVertical = ToSequential(BinaryImageToHexBytes(bm, Orientation.Vertical));
             prop.NewLine = newline;
             return prop;
         }
@@ -323,7 +332,8 @@ namespace FontImageHx
             Bitmap bm = BinarizeOtsu(DrawCharacter(c, config), prop.BinaryThreshold);
             prop.ViewSource = bm;
             prop.Character = c;
-            prop.Hex = ToSequential(BinaryImageToHexBytes(bm));
+            prop.HexHorizontal = ToSequential(BinaryImageToHexBytes(bm, Orientation.Horizontal));
+            prop.HexVertical = ToSequential(BinaryImageToHexBytes(bm, Orientation.Vertical));
 
             return prop;
         }
@@ -491,7 +501,7 @@ namespace FontImageHx
         /// </summary>
         /// <param name="bitmap">Bitmap image</param>
         /// <returns>2-dimensional byte array</returns>
-        public static byte[][] BinaryImageToHexBytes(Bitmap bitmap)
+        public static byte[][] BinaryImageToHexBytes(Bitmap bitmap, Orientation orientation)
         {
             byte[][] result = new byte[bitmap.Height][];
 
@@ -512,7 +522,12 @@ namespace FontImageHx
                 }
             }
 
-            return ByteToBitHorizontal(result);
+            if(orientation == Orientation.Horizontal)
+            {
+                return ByteToBitHorizontal(result);
+            }
+
+            return ByteToBitVertical(result);
         }
 
         /// <summary>
@@ -521,7 +536,7 @@ namespace FontImageHx
         /// <param name="bitmap">binarized shlinked bitmap</param>
         /// <param name="width">configured width</param>
         /// <returns></returns>
-        protected static byte[][] BitToByte(byte[][] bitmap, int width)
+        public static byte[][] BitToByteHorizontal(byte[][] bitmap, int width)
         {
             int w = width;
             int h = bitmap.Length;
@@ -568,6 +583,38 @@ namespace FontImageHx
                     for (int i = 0; i < max; i++)
                     {
                         result[y][x] |= (byte)(bitmap[y][start + i] << (7 - i));
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Shrinks a row of a binarized 8-byte buffer to 1 byte.
+        /// If there is a remainder in multiples of 8, align to the left.
+        /// </summary>
+        /// <param name="bitmap">binarized bitmap</param>
+        /// <returns></returns>
+        public static byte[][] ByteToBitVertical(byte[][] bitmap)
+        {
+            int w = bitmap[0].Length;
+            int h = (bitmap.Length / 8) + Convert.ToInt32(bitmap.Length % 8 > 0);
+
+            byte[][] result = new byte[w][];
+
+            for (int x = 0; x < w; x++)
+            {
+                result[x] = new byte[h];
+                for (int y = 0; y < h; y++)
+                {
+                    int start = y * 8;
+                    int lest = bitmap.Length - start;
+                    int max = lest < 8 ? lest : 8;
+
+                    for (int i = 0; i < max; i++)
+                    {
+                        result[x][y] |= (byte)(bitmap[start + i][x] << (7 - i));
                     }
                 }
             }

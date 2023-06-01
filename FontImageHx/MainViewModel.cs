@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 
 namespace FontImageHx
@@ -15,7 +16,8 @@ namespace FontImageHx
         private ToggleButton[][]? _toggleButtonMap;
         private string _fontSize = "";
         private string _fontFamily = "";
-        private string _hexView = "";
+        private string _horizontalHexView = "";
+        private string _verticalHexView = "";
         private bool _newLine;
         private bool _fontBold;
         private bool _fontItalic;
@@ -77,7 +79,8 @@ namespace FontImageHx
         public WindowCommand Close { get; init; }
         public WindowCommand About { get; init; }
         public WindowCommand SaveBitmap { get; init; }
-        public WindowCommand SaveCHex { get; init; }
+        public WindowCommand SaveCHexHorizontal { get; init; }
+        public WindowCommand SaveCHexVertical{ get; init; }
         public WindowCommand NewProfile { get; init; }
         public WindowCommand OpenProfile { get; init; }
         public WindowCommand SaveProfile { get; init; }
@@ -97,9 +100,14 @@ namespace FontImageHx
                 OpenSave.ExportToBitmap(ConvertedImages);
             });
 
-            SaveCHex = new WindowCommand((_) =>
+            SaveCHexHorizontal = new WindowCommand((_) =>
             {
-                OpenSave.ExportToCHeader(ConvertedImages);
+                OpenSave.ExportToCHeader(ConvertedImages, Orientation.Horizontal);
+            });
+
+            SaveCHexVertical = new WindowCommand((_) =>
+            {
+                OpenSave.ExportToCHeader(ConvertedImages, Orientation.Vertical);
             });
 
             NewProfile = new WindowCommand((_) =>
@@ -141,7 +149,7 @@ namespace FontImageHx
                         && int.TryParse(im.CharHeight, out int height))
                     {
                         im.ViewSource = BitmapOperation.FromSequential(
-                            im.Hex, width, height);
+                            im.HexHorizontal, width, height);
                     }
                     else
                     {
@@ -208,7 +216,7 @@ namespace FontImageHx
                             hexdata, width, height);
                 }
 
-                w.Hex = hexdata;
+                w.HexHorizontal = hexdata;
 
                 ConvertedImages[LastSelectedIndex] = w;
                 LastSelectedImage = w;
@@ -348,18 +356,32 @@ namespace FontImageHx
                 }
             }
         }
-        public string EditHexView
+        public string EditHorizontalHexView
         {
-            get => _hexView;
+            get => _horizontalHexView;
             set
             {
-                if (_hexView != value)
+                if (_horizontalHexView != value)
                 {
-                    _hexView = value;
-                    UpdateImageProperty((i) => { i.Hex = value; });
+                    _horizontalHexView = value;
+                    UpdateImageProperty((i) => { i.HexHorizontal = value; });
                 }
             }
         }
+
+        public string EditVerticalHexView
+        {
+            get => _verticalHexView;
+            set
+            {
+                if (_verticalHexView != value)
+                {
+                    _verticalHexView = value;
+                    UpdateImageProperty((i) => { i.HexVertical = value; });
+                }
+            }
+        }
+
         public string TextAreaString
         {
             get => _textString;
@@ -404,7 +426,8 @@ namespace FontImageHx
                     _fontUnderline = value.FontUnderline;
                     _charWidth = value.CharWidth.ToString();
                     _charHeight = value.CharHeight.ToString();
-                    _hexView = value.Hex;
+                    _horizontalHexView = value.HexHorizontal;
+                    _verticalHexView = value.HexVertical;
                     _newLine = value.NewLine;
                     _editLocked = value.Locked;
                     OnPropertyChanged(nameof(EditFontFamily));
@@ -414,7 +437,8 @@ namespace FontImageHx
                     OnPropertyChanged(nameof(EditFontUnderline));
                     OnPropertyChanged(nameof(EditCharWidth));
                     OnPropertyChanged(nameof(EditCharHeight));
-                    OnPropertyChanged(nameof(EditHexView));
+                    OnPropertyChanged(nameof(EditHorizontalHexView));
+                    OnPropertyChanged(nameof(EditVerticalHexView));
                     OnPropertyChanged(nameof(EditNewLine));
                     OnPropertyChanged(nameof(IsLocked));
                     OnPropertyChanged();
