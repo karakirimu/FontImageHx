@@ -125,7 +125,10 @@
                 <MenuItem Header="_Save" Command="{Binding SaveProfile}" IsEnabled="{Binding IsEditing}"/>
                 <MenuItem Header="_Export" IsEnabled="{Binding IsEditing}">
                     <MenuItem Header="_Bitmap" Command="{Binding SaveBitmap}"/>
-                    <MenuItem Header="_C Header" Command="{Binding SaveCHex}"/>
+                    <MenuItem Header="_C Header">
+                        <MenuItem Header="_Horizontal" Command="{Binding SaveCHexHorizontal}"/>
+                        <MenuItem Header="_Vertical" Command="{Binding SaveCHexVertical}"/>
+                    </MenuItem>
                 </MenuItem>
                 <Separator />
                 <MenuItem Header="_Exit" Command="{Binding Close}" />
@@ -250,6 +253,10 @@
                             <RowDefinition Height="24"/>
                             <RowDefinition Height="4"/>
                             <RowDefinition Height="24"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="24"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="4"/>
 
                             <RowDefinition Height="1*"/>
@@ -261,7 +268,8 @@
                         <TextBlock Grid.Row="6" Grid.Column="0" Text="Width" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="8" Grid.Column="0" Text="Height" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="10" Grid.Column="0" Text="NewLine" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Row="12" Grid.Column="0" Text="Hex" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="12" Grid.Column="0" Text="Hex (Horizontal)" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="15" Grid.Column="0" Text="Hex (Vertical)" VerticalAlignment="Center"/>
 
                         <ComboBox  Grid.Row="0" Grid.Column="1"
                                     IsEditable="True"
@@ -355,10 +363,17 @@
                                     IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
 
                         <TextBox   Grid.Row="12" Grid.Column="1"
-                                    Grid.RowSpan="3"
+                                   Grid.RowSpan="2"
                                     TextWrapping="Wrap"
                                     IsReadOnly="True"
-                                    Text="{Binding EditHexView}"
+                                    Text="{Binding EditHorizontalHexView}"
+                                    IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
+
+                        <TextBox   Grid.Row="15" Grid.Column="1"
+                                   Grid.RowSpan="2"
+                                    TextWrapping="Wrap"
+                                    IsReadOnly="True"
+                                    Text="{Binding EditVerticalHexView}"
                                     IsEnabled="{Binding IsLocked, Converter={StaticResource InvertBool}}"/>
 
                     </Grid>
