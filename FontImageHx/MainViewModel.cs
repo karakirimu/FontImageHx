@@ -205,7 +205,7 @@ namespace FontImageHx
                 }
 
                 byte[][] bitmapbyte = BitmapCanvas.ToggleToByte(ToggleButtonMap);
-                string hexdata = BitmapOperation.ToSequential(
+                string hexdatahorizontal = BitmapOperation.ToSequential(
                     BitmapOperation.ByteToBitHorizontal(bitmapbyte));
                 ImageProperty w = ConvertedImages[LastSelectedIndex].ShallowCopy();
 
@@ -213,10 +213,14 @@ namespace FontImageHx
                     && int.TryParse(LastSelectedImage.CharHeight, out int height))
                 {
                     w.ViewSource = BitmapOperation.FromSequential(
-                            hexdata, width, height);
+                            hexdatahorizontal, width, height);
                 }
 
-                w.HexHorizontal = hexdata;
+                string hexdatavertical = BitmapOperation.ToSequential(
+                    BitmapOperation.ByteToBitVertical(bitmapbyte));
+
+                w.HexHorizontal = hexdatahorizontal;
+                w.HexVertical = hexdatavertical;
 
                 ConvertedImages[LastSelectedIndex] = w;
                 LastSelectedImage = w;
