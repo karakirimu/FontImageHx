@@ -20,6 +20,8 @@ This software can convert installed fonts to binary bitmaps or hexadecimal byte 
 
 ## Hexadecimal Output
 
+### Horizontal
+
 White in the width direction of a binary image is represented as 1 and black as 0. 8px worth of information is packed into a single byte. If the width is not divisible by 8, it is stored left-justified.
 
 Example
@@ -44,6 +46,56 @@ Example
 □□□□■■■□□□□□ -> 0x0E,0x00,
 □□□□□□□□□□□□ -> 0x00,0x00,
 □□□□□□□□□□□□ -> 0x00,0x00
+```
+
+### Vertical
+
+The color definition is the same as horizontal, but the orientation of the binary image compression has changed.
+
+
+
+Example
+
+```
+5x4 px (WxH)
+----> 
+□■□■□
+□■□■□
+□■■■□
+□□□□□
+||||+-> 0x00, (□□□□□)
+|||+--> 0xE0, (■■■□□)
+||+---> 0x20, (□□■□□)
+|+----> 0xE0, (■■■□□)
++-----> 0x00, (□□□□□)
+
+
+12x12 px
+----------->
+□□□□□□□□□□□□
+□□□□□□■□□□□□
+□□□□■■□■□□□□
+□□□□■□□□■□□□
+□□□□■□□□■□□□
+□□□□■□□■■□□□
+□□□□□■■□■□□□
+□□□□□□□□■□□□
+□□□□□□□■□□□□
+□□□□■■■□□□□□
+□□□□□□□□□□□□
+□□□□□□□□□□□□
+|||||||||||+-> 0x00,0x00, (□□□□□□□□□□□□)
+||||||||||+--> 0x00,0x00, (□□□□□□□□□□□□)
+|||||||||+---> 0x00,0x00, (□□□□□□□□□□□□)
+||||||||+----> 0x1F,0x00, (□□□■■■■■□□□□)
+|||||||+-----> 0x24,0x80, (□□■□□■□□■□□□)
+||||||+------> 0x42,0x40, (□■□□□□■□□■□□)
+|||||+-------> 0x22,0x40, (□□■□□□■□□■□□)
+||||+--------> 0x3C,0x40, (□□■■■■□□□■□□)
+|||+---------> 0x00,0x00, (□□□□□□□□□□□□)
+||+----------> 0x00,0x00, (□□□□□□□□□□□□)
+|+-----------> 0x00,0x00, (□□□□□□□□□□□□)
++------------> 0x00,0x00, (□□□□□□□□□□□□)
 ```
 
 ## Installation
