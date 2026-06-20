@@ -145,27 +145,12 @@ namespace FontImageHx
 
                 foreach (var im in profile.Item2)
                 {
-                    if (int.TryParse(im.CharWidth, out int width)
-                        && int.TryParse(im.CharHeight, out int height))
-                    {
-                        im.ViewSource = BitmapOperation.FromSequential(
-                            im.HexHorizontal, width, height);
-                    }
-                    else
-                    {
-                        im.ViewSource = new System.Drawing.Bitmap(1, 1);
-                    }
-
-                    if (im.NewLine)
-                    {
-                        _textString += "\n";
-                    }
-
-                    _textString += im.Character;
+                    MainImageLogic.RestoreViewSource(im);
                     im.PropertyChanged += OnImagePropertyUpdated;
                     ConvertedImages.Add(im);
                 }
 
+                _textString = MainImageLogic.BuildTextAreaString(profile.Item2);
                 OnPropertyChanged(nameof(TextAreaString));
 
                 WindowTitle = $"{profile.Item1} - FontImageHx";
@@ -205,23 +190,9 @@ namespace FontImageHx
                 }
 
                 byte[][] bitmapbyte = BitmapCanvas.ToggleToByte(ToggleButtonMap);
-                string hexdatahorizontal = BitmapOperation.ToSequential(
-                    BitmapOperation.ByteToBitHorizontal(bitmapbyte));
-                ImageProperty w = ConvertedImages[LastSelectedIndex].ShallowCopy();
-
-                if (int.TryParse(LastSelectedImage.CharWidth, out int width)
-                    && int.TryParse(LastSelectedImage.CharHeight, out int height))
-                {
-                    w.ViewSource = BitmapOperation.FromSequential(
-                            hexdatahorizontal, width, height);
-                }
-
-                string hexdatavertical = BitmapOperation.ToSequential(
-                    BitmapOperation.ByteToBitVertical(bitmapbyte));
-
-                w.HexHorizontal = hexdatahorizontal;
-                w.HexVertical = hexdatavertical;
-
+                ImageProperty w = MainImageLogic.CreateUpdatedImage(
+                    ConvertedImages[LastSelectedIndex],
+                    bitmapbyte);
                 ConvertedImages[LastSelectedIndex] = w;
                 LastSelectedImage = w;
             });
@@ -256,9 +227,9 @@ namespace FontImageHx
                 return;
             }
 
-            var i = ConvertedImages[LastSelectedIndex].ShallowCopy();
-            updateAction(i);
-            i.ViewSource = BitmapOperation.GetCharacterImage(i);
+            var i = MainImageLogic.UpdateCharacterImage(
+                ConvertedImages[LastSelectedIndex],
+                updateAction);
             ConvertedImages[LastSelectedIndex] = i;
             _selectedImage = i;
             OnPropertyChanged(nameof(LastSelectedImage));

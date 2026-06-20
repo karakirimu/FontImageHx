@@ -23,8 +23,7 @@ namespace FontImageHx
             if (openFileDialog.ShowDialog() == true)
             {
                 string json = File.ReadAllText(openFileDialog.FileName);
-                Profile profile
-                    = VersionConvert.GetLatestProfile(json);
+                Profile profile = ProfileSerializer.DeserializeLatestProfile(json);
 
                 if (profile.Image.Count > 0)
                 {
@@ -47,8 +46,7 @@ namespace FontImageHx
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                Profile profile = new(images);
-                string json = JsonSerializer.Serialize(profile);
+                string json = ProfileSerializer.SerializeLatestProfile(images);
                 File.WriteAllText(saveFileDialog.FileName, json);
             }
         }
@@ -82,30 +80,16 @@ namespace FontImageHx
                 Filter = "C Header (*.h)|*.h|All Files (*.*)|*.*",
                 DefaultExt = "h",
                 AddExtension = true,
-                FileName = $"font_{DateTime.Now:yyyyMMddHHmmss}"
+                FileName = CHeaderFormatter.BuildDefaultFileName(DateTime.Now)
             };
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                using StreamWriter sw = new(saveFileDialog.FileName);
-                sw.WriteLine("//");
-                sw.WriteLine($"// {Path.GetFileName(saveFileDialog.FileName)}");
-                sw.WriteLine($"// Orientation: {orientation}");
-                sw.WriteLine("//");
-                sw.WriteLine(string.Empty);
-                sw.WriteLine($"static uint8_t font[] = {{");
-
-                foreach (var im in images)
-                {
-                    if (im != null)
-                    {
-                        string hex = orientation == Orientation.Horizontal ? im.HexHorizontal : im.HexVertical;
-                        sw.WriteLine($"    {hex}, // {im.Character} {im.CharWidth}x{im.CharHeight}");
-                    }
-                }
-
-                sw.WriteLine($"}};");
-                sw.Close();
+                string header = CHeaderFormatter.BuildFontHeader(
+                    images,
+                    orientation,
+                    saveFileDialog.FileName);
+                File.WriteAllText(saveFileDialog.FileName, header);
             }
         }
     }

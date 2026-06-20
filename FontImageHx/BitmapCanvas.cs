@@ -69,79 +69,15 @@ namespace FontImageHx
                 return;
             }
 
-            switch (direction)
+            byte[][] moved = ToggleToByte(buttonMap);
+            BitmapMatrix.Move(moved, direction);
+
+            for (int y = 0; y < buttonMap.Length; y++)
             {
-                case MoveDirection.Up:
-                    for (int y = 1; y < buttonMap.Length; y++)
-                    {
-                        int ty = y - 1;
-                        int ny = y;
-
-                        for (int x = 0; x < buttonMap[0].Length; x++)
-                        {
-                            buttonMap[ty][x].IsChecked
-                                = buttonMap[ny][x].IsChecked;
-
-                            if (buttonMap.Length - 1 == ny)
-                            {
-                                buttonMap[ny][x].IsChecked = false;
-                            }
-                        }
-                    }
-                    break;
-                case MoveDirection.Down:
-                    for (int y = 1; y < buttonMap.Length; y++)
-                    {
-                        int ty = buttonMap.Length - y;
-                        int ny = buttonMap.Length - 1 - y;
-
-                        for (int x = 0; x < buttonMap[0].Length; x++)
-                        {
-                            buttonMap[ty][x].IsChecked
-                                = buttonMap[ny][x].IsChecked;
-
-                            if (0 == ny)
-                            {
-                                buttonMap[ny][x].IsChecked = false;
-                            }
-                        }
-                    }
-                    break;
-                case MoveDirection.Left:
-                    for (int y = 0; y < buttonMap.Length; y++)
-                    {
-                        for (int x = 1; x < buttonMap[0].Length; x++)
-                        {
-                            int tx = x - 1;
-                            int nx = x;
-
-                            buttonMap[y][tx].IsChecked = buttonMap[y][nx].IsChecked;
-
-                            if (buttonMap[0].Length - 1 == nx)
-                            {
-                                buttonMap[y][nx].IsChecked = false;
-                            }
-                        }
-                    }
-                    break;
-                case MoveDirection.Right:
-                    for (int y = 0; y < buttonMap.Length; y++)
-                    {
-                        for (int x = 1; x < buttonMap[0].Length; x++)
-                        {
-                            int tx = buttonMap[0].Length - x;
-                            int nx = buttonMap[0].Length - 1 - x;
-
-                            buttonMap[y][tx].IsChecked
-                            = buttonMap[y][nx].IsChecked;
-
-                            if (0 == nx)
-                            {
-                                buttonMap[y][nx].IsChecked = false;
-                            }
-                        }
-                    }
-                    break;
+                for (int x = 0; x < buttonMap[0].Length; x++)
+                {
+                    buttonMap[y][x].IsChecked = moved[y][x] != 0;
+                }
             }
         }
     }

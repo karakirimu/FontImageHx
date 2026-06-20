@@ -17,15 +17,7 @@ namespace FontImageHx
 
             PasteAscii = new WindowCommand((_) =>
             {
-                const string ascii
-                    = " !\"#$%&'()*+,-./\n" +
-                      "0123456789:;<=>?\n" +
-                      "@ABCDEFGHIJKLMNO\n" +
-                      "PQRSTUVWXYZ[\\]^_\n" +
-                      "`abcdefghijklmno\n" +
-                      "pqrstuvwxyz{|}~";
-
-                TextAreaString = ascii;
+                TextAreaString = TextWizardText.Ascii;
             });
         }
 
