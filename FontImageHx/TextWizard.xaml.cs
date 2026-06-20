@@ -1,4 +1,4 @@
-﻿using FontImageHx;
+using FontImageHx;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -39,7 +39,9 @@ namespace FontImageHx
 
             if (vm.TextAreaString == "\r\n" || vm.TextAreaString == "")
             {
+                DisposeResultImages();
                 OutputArea.Source = new BitmapImage();
+                Result = new ObservableCollection<ImageProperty>();
                 return;
             }
 
@@ -55,7 +57,11 @@ namespace FontImageHx
                     SingleCharHeight = vm.EditCharHeight
                 });
 
-            OutputArea.Source = BitmapOperation.ConvertImage(BitmapOperation.CombineImage(p));
+            DisposeResultImages();
+            using (var combinedBitmap = BitmapOperation.CombineImage(p))
+            {
+                OutputArea.Source = BitmapOperation.ConvertImage(combinedBitmap);
+            }
             Result = new ObservableCollection<ImageProperty>(p);
         }
 
@@ -63,6 +69,24 @@ namespace FontImageHx
         {
             DialogResult = true;
             Close();
+        }
+
+        protected override void OnClosed(System.EventArgs e)
+        {
+            if (DialogResult != true)
+            {
+                DisposeResultImages();
+            }
+
+            base.OnClosed(e);
+        }
+
+        private void DisposeResultImages()
+        {
+            foreach (ImageProperty image in Result)
+            {
+                image.Dispose();
+            }
         }
     }
 }

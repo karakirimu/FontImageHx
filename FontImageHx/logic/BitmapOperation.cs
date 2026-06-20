@@ -52,11 +52,7 @@ namespace FontImageHx
                 bitmapImage.StreamSource = stream;
                 bitmapImage.EndInit();
             }
-
-            if (bitmapImage == null)
-            {
-                return new BitmapImage();
-            }
+            bitmapImage.Freeze();
 
             // ImageにImageSourceを設定する
             return bitmapImage;
@@ -93,7 +89,7 @@ namespace FontImageHx
             if (config.Underline) fontStyle |= FontStyle.Underline;
 
             // フォントファイルを読み込む
-            Font font = new(config.FontFamily, config.FontSize, fontStyle, GraphicsUnit.Pixel);
+            using Font font = new(config.FontFamily, config.FontSize, fontStyle, GraphicsUnit.Pixel);
 
             // テキストのサイズを測定
             var sizeF = g.MeasureString(c.ToString(), font);
@@ -160,8 +156,11 @@ namespace FontImageHx
                         continue;
                     }
 
-                    g.DrawImage(BinarizeOtsu(DrawCharacter(c, config), binaryThreshold),
-                                    new Rectangle(offsetX, offsetY, config.SingleCharWidth, config.SingleCharHeight));
+                    using Bitmap characterBitmap = DrawCharacter(c, config);
+                    using Bitmap binarizedBitmap = BinarizeOtsu(characterBitmap, binaryThreshold);
+                    g.DrawImage(
+                        binarizedBitmap,
+                        new Rectangle(offsetX, offsetY, config.SingleCharWidth, config.SingleCharHeight));
                     offsetX += config.SingleCharWidth;
                 }
             }
@@ -305,7 +304,8 @@ namespace FontImageHx
                 FontUnderline = config.Underline
             };
 
-            Bitmap bm = BinarizeOtsu(DrawCharacter(c, config), prop.BinaryThreshold);
+            using Bitmap characterBitmap = DrawCharacter(c, config);
+            Bitmap bm = BinarizeOtsu(characterBitmap, prop.BinaryThreshold);
 
             prop.ViewSource = bm;
             prop.Character = c;
@@ -329,7 +329,8 @@ namespace FontImageHx
                 Underline = prop.FontUnderline
             };
 
-            Bitmap bm = BinarizeOtsu(DrawCharacter(c, config), prop.BinaryThreshold);
+            using Bitmap characterBitmap = DrawCharacter(c, config);
+            Bitmap bm = BinarizeOtsu(characterBitmap, prop.BinaryThreshold);
             prop.ViewSource = bm;
             prop.Character = c;
             prop.HexHorizontal = ToSequential(BinaryImageToHexBytes(bm, Orientation.Horizontal));
@@ -481,7 +482,7 @@ namespace FontImageHx
 
             if (weight1 == 0.0 || weight0 == 0.0)
             {
-                return bitmap;
+                return (Bitmap)bitmap.Clone();
             }
 
             double[] im = BitmapSequential(bitmap);

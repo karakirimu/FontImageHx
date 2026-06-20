@@ -115,5 +115,27 @@ namespace FontImageHxTest
                 Assert.That(updated.ViewSource.Height, Is.EqualTo(8));
             });
         }
+
+        [Test]
+        public void CreateUpdatedImage_DoesNotShareBitmapOwnershipWithSource()
+        {
+            ImageProperty source = new()
+            {
+                CharWidth = "2",
+                CharHeight = "1",
+                HexHorizontal = "0x80",
+                HexVertical = "0x80"
+            };
+            MainImageLogic.RestoreViewSource(source);
+            byte[][] bitmap =
+            [
+                [0, 1]
+            ];
+
+            ImageProperty updated = MainImageLogic.CreateUpdatedImage(source, bitmap);
+            source.Dispose();
+
+            Assert.That(updated.ViewSource.GetPixel(1, 0).R, Is.EqualTo(Color.White.R));
+        }
     }
 }

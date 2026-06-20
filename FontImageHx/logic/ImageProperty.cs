@@ -1,4 +1,5 @@
-﻿using FontImageHx;
+using FontImageHx;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
@@ -7,7 +8,7 @@ using System.Windows.Media.Imaging;
 
 namespace FontImageHx
 {
-    public class ImageProperty : INotifyPropertyChanged
+    public class ImageProperty : INotifyPropertyChanged, IDisposable
     {
         public ImageProperty()
         {
@@ -25,15 +26,19 @@ namespace FontImageHx
         }
 
         [JsonIgnore]
-        private Bitmap _bitmap = new(1, 1);
+        private Bitmap? _bitmap = new(1, 1);
+        [JsonIgnore]
+        private bool _isDisposed;
         [JsonIgnore]
         public BitmapImage? View { get; private set; }
         [JsonIgnore]
         public Bitmap ViewSource
         {
-            get => _bitmap;
+            get => _bitmap ?? throw new ObjectDisposedException(nameof(ImageProperty));
             set
             {
+                ThrowIfDisposed();
+                _bitmap?.Dispose();
                 _bitmap = value;
                 View = BitmapOperation.ConvertImage(value);
             }
@@ -64,13 +69,50 @@ namespace FontImageHx
             }
         }
 
-        public ImageProperty ShallowCopy()
+        public ImageProperty CloneValueProperties()
         {
-            return (ImageProperty)MemberwiseClone();
+            return new ImageProperty()
+            {
+                Character = Character,
+                HexHorizontal = HexHorizontal,
+                HexVertical = HexVertical,
+                FontSize = FontSize,
+                CharWidth = CharWidth,
+                CharHeight = CharHeight,
+                FontFamily = FontFamily,
+                FontBold = FontBold,
+                FontItalic = FontItalic,
+                FontUnderline = FontUnderline,
+                BinaryThreshold = BinaryThreshold,
+                NewLine = NewLine,
+                Locked = Locked
+            };
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        public void Dispose()
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            _bitmap?.Dispose();
+            _bitmap = null;
+            View = null;
+            _isDisposed = true;
+            GC.SuppressFinalize(this);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(ImageProperty));
+            }
+        }
     }
 }

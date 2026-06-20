@@ -40,7 +40,7 @@ namespace FontImageHx
 
         public static ImageProperty CreateUpdatedImage(ImageProperty source, byte[][] bitmap)
         {
-            ImageProperty updated = source.ShallowCopy();
+            ImageProperty updated = source.CloneValueProperties();
             string hexHorizontal = BitmapOperation.ToSequential(
                 BitmapOperation.ByteToBitHorizontal(bitmap));
             string hexVertical = BitmapOperation.ToSequential(
@@ -62,7 +62,7 @@ namespace FontImageHx
             ImageProperty source,
             Action<ImageProperty> updateAction)
         {
-            ImageProperty updated = source.ShallowCopy();
+            ImageProperty updated = source.CloneValueProperties();
             updateAction(updated);
             updated.ViewSource = BitmapOperation.GetCharacterImage(updated);
             return updated;

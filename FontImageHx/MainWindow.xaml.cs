@@ -10,10 +10,13 @@ namespace FontImageHx
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly MainViewModel _viewModel;
+
         internal MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
 
+            _viewModel = viewModel;
             viewModel.PropertyChanged += OnPropertyChanged;
             DataContext = viewModel;
         }
@@ -127,15 +130,20 @@ namespace FontImageHx
 
                         if (el.Text.Length > 0)
                         {
-                            var item = BitmapOperation.UpdateCharacterProperty(
-                                el.Text[0], vm.ConvertedImages[rowIndex].ShallowCopy());
-                            vm.ConvertedImages[rowIndex] = item;
+                            vm.UpdateCharacterAt(rowIndex, el.Text[0]);
                             CreateEditControl(vm);
                             //var datagrid = (DataGrid)sender;
                         }
                     }
                 }
             }
+        }
+
+        protected override void OnClosed(System.EventArgs e)
+        {
+            _viewModel.PropertyChanged -= OnPropertyChanged;
+            _viewModel.Dispose();
+            base.OnClosed(e);
         }
     }
 }

@@ -78,8 +78,8 @@ namespace FontImageHx
 
             if (saveFileDialog.ShowDialog() == true)
             {
-                BitmapOperation.CombineImage(images)
-                .Save(saveFileDialog.FileName, ImageFormat.Bmp);
+                using var combinedBitmap = BitmapOperation.CombineImage(images);
+                combinedBitmap.Save(saveFileDialog.FileName, ImageFormat.Bmp);
             }
         }
 

@@ -1,5 +1,6 @@
 using FontImageHx;
 using Moq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -119,6 +120,21 @@ namespace FontImageHxTest
                 Assert.That(viewModel.EditBitmap, Is.Not.Null);
                 Assert.That(viewModel.EditBitmap![1][1], Is.EqualTo(1));
             });
+        }
+
+        [Test]
+        public void ImageUpdate_DisposesPreviousImageWhenReplacingSelectedEntry()
+        {
+            MainViewModel viewModel = CreateViewModel();
+            ImageProperty image = CreateImageProperty("2", "2", "0x80,0x00");
+            viewModel.ConvertedImages.Add(image);
+            viewModel.LastSelectedIndex = 0;
+            viewModel.LastSelectedImage = image;
+            viewModel.UpdateEditBitmapCell(1, 1, true);
+
+            viewModel.ImageUpdate.Execute(null);
+
+            Assert.Throws<ObjectDisposedException>(() => image.ViewSource.GetPixel(0, 0));
         }
 
         private static MainViewModel CreateViewModel(

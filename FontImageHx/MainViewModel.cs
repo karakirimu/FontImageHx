@@ -8,7 +8,7 @@ using System.Windows.Controls;
 
 namespace FontImageHx
 {
-    internal class MainViewModel : INotifyPropertyChanged
+    internal class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         private readonly IApplicationService _applicationService;
         private readonly IMainDialogService _dialogService;
@@ -126,12 +126,7 @@ namespace FontImageHx
                     return;
                 }
 
-                ConvertedImages.Clear();
-                foreach (var im in images)
-                {
-                    im.PropertyChanged += OnImagePropertyUpdated;
-                    ConvertedImages.Add(im);
-                }
+                ReplaceAllImages(images);
 
                 WindowTitle = "Untitled - FontImageHx";
                 IsEditing = true;
@@ -146,14 +141,12 @@ namespace FontImageHx
                     return;
                 }
 
-                ConvertedImages.Clear();
-
                 foreach (var im in profile.Item2)
                 {
                     MainImageLogic.RestoreViewSource(im);
-                    im.PropertyChanged += OnImagePropertyUpdated;
-                    ConvertedImages.Add(im);
                 }
+
+                ReplaceAllImages(profile.Item2);
 
                 _textString = MainImageLogic.BuildTextAreaString(profile.Item2);
                 OnPropertyChanged(nameof(TextAreaString));
@@ -194,11 +187,11 @@ namespace FontImageHx
                     return;
                 }
 
-                ImageProperty w = MainImageLogic.CreateUpdatedImage(
+                ImageProperty updatedImage = MainImageLogic.CreateUpdatedImage(
                     ConvertedImages[LastSelectedIndex],
                     EditBitmap);
-                ConvertedImages[LastSelectedIndex] = w;
-                LastSelectedImage = w;
+                ReplaceImageAt(LastSelectedIndex, updatedImage);
+                LastSelectedImage = updatedImage;
             });
 
             About = new WindowCommand((_) =>
@@ -240,6 +233,24 @@ namespace FontImageHx
             EditBitmap[y][x] = (byte)(isChecked ? 1 : 0);
         }
 
+        internal void UpdateCharacterAt(int index, char character)
+        {
+            if (index < 0 || index >= ConvertedImages.Count)
+            {
+                return;
+            }
+
+            ImageProperty updatedImage = BitmapOperation.UpdateCharacterProperty(
+                character,
+                ConvertedImages[index].CloneValueProperties());
+            ReplaceImageAt(index, updatedImage);
+
+            if (index == LastSelectedIndex)
+            {
+                LastSelectedImage = updatedImage;
+            }
+        }
+
         private void MoveEditBitmap(MoveDirection direction)
         {
             if (EditBitmap == null)
@@ -263,12 +274,12 @@ namespace FontImageHx
                 return;
             }
 
-            var i = MainImageLogic.UpdateCharacterImage(
+            ImageProperty updatedImage = MainImageLogic.UpdateCharacterImage(
                 ConvertedImages[LastSelectedIndex],
                 updateAction);
-            ConvertedImages[LastSelectedIndex] = i;
-            _selectedImage = i;
-            RefreshEditBitmapFromImage(i);
+            ReplaceImageAt(LastSelectedIndex, updatedImage);
+            _selectedImage = updatedImage;
+            RefreshEditBitmapFromImage(updatedImage);
             OnPropertyChanged(nameof(LastSelectedImage));
         }
 
@@ -429,31 +440,8 @@ namespace FontImageHx
 
                 if (_selectedImage != value)
                 {
-                    RowSelectedView = true;
                     _selectedImage = value;
-                    _fontFamily = value.FontFamily;
-                    _fontSize = value.FontSize.ToString();
-                    _fontBold = value.FontBold;
-                    _fontItalic = value.FontItalic;
-                    _fontUnderline = value.FontUnderline;
-                    _charWidth = value.CharWidth.ToString();
-                    _charHeight = value.CharHeight.ToString();
-                    _horizontalHexView = value.HexHorizontal;
-                    _verticalHexView = value.HexVertical;
-                    _newLine = value.NewLine;
-                    _editLocked = value.Locked;
-                    RefreshEditBitmapFromImage(value);
-                    OnPropertyChanged(nameof(EditFontFamily));
-                    OnPropertyChanged(nameof(EditFontSize));
-                    OnPropertyChanged(nameof(EditFontBold));
-                    OnPropertyChanged(nameof(EditFontItalic));
-                    OnPropertyChanged(nameof(EditFontUnderline));
-                    OnPropertyChanged(nameof(EditCharWidth));
-                    OnPropertyChanged(nameof(EditCharHeight));
-                    OnPropertyChanged(nameof(EditHorizontalHexView));
-                    OnPropertyChanged(nameof(EditVerticalHexView));
-                    OnPropertyChanged(nameof(EditNewLine));
-                    OnPropertyChanged(nameof(IsLocked));
+                    UpdateEditorState(value);
                     OnPropertyChanged();
                     return;
                 }
@@ -478,6 +466,18 @@ namespace FontImageHx
         private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
+        public void Dispose()
+        {
+            DisposeConvertedImages();
+
+            if (!ConvertedImages.Contains(_selectedImage))
+            {
+                _selectedImage.Dispose();
+            }
+
+            GC.SuppressFinalize(this);
+        }
+
         private void OnImagePropertyUpdated(object? sender, PropertyChangedEventArgs e)
         {
             if (sender is not ImageProperty)
@@ -486,7 +486,87 @@ namespace FontImageHx
             }
 
             var im = (ImageProperty)sender;
-            LastSelectedImage = im.ShallowCopy();
+            if (ReferenceEquals(im, _selectedImage))
+            {
+                UpdateEditorState(im);
+                OnPropertyChanged(nameof(LastSelectedImage));
+            }
+        }
+
+        private void ReplaceAllImages(IReadOnlyList<ImageProperty> images)
+        {
+            DisposeConvertedImages();
+            foreach (ImageProperty image in images)
+            {
+                AttachImage(image);
+                ConvertedImages.Add(image);
+            }
+
+            if (images.Count == 0)
+            {
+                ResetSelectedImage();
+            }
+        }
+
+        private void ReplaceImageAt(int index, ImageProperty image)
+        {
+            ImageProperty existing = ConvertedImages[index];
+            existing.PropertyChanged -= OnImagePropertyUpdated;
+            AttachImage(image);
+            ConvertedImages[index] = image;
+            existing.Dispose();
+        }
+
+        private void AttachImage(ImageProperty image)
+        {
+            image.PropertyChanged += OnImagePropertyUpdated;
+        }
+
+        private void DisposeConvertedImages()
+        {
+            foreach (ImageProperty image in ConvertedImages)
+            {
+                image.PropertyChanged -= OnImagePropertyUpdated;
+                image.Dispose();
+            }
+
+            ConvertedImages.Clear();
+            ResetSelectedImage();
+        }
+
+        private void ResetSelectedImage()
+        {
+            _selectedImage.Dispose();
+            _selectedImage = new ImageProperty();
+            _selectedIndex = -1;
+        }
+
+        private void UpdateEditorState(ImageProperty value)
+        {
+            RowSelectedView = true;
+            _fontFamily = value.FontFamily;
+            _fontSize = value.FontSize.ToString();
+            _fontBold = value.FontBold;
+            _fontItalic = value.FontItalic;
+            _fontUnderline = value.FontUnderline;
+            _charWidth = value.CharWidth.ToString();
+            _charHeight = value.CharHeight.ToString();
+            _horizontalHexView = value.HexHorizontal;
+            _verticalHexView = value.HexVertical;
+            _newLine = value.NewLine;
+            _editLocked = value.Locked;
+            RefreshEditBitmapFromImage(value);
+            OnPropertyChanged(nameof(EditFontFamily));
+            OnPropertyChanged(nameof(EditFontSize));
+            OnPropertyChanged(nameof(EditFontBold));
+            OnPropertyChanged(nameof(EditFontItalic));
+            OnPropertyChanged(nameof(EditFontUnderline));
+            OnPropertyChanged(nameof(EditCharWidth));
+            OnPropertyChanged(nameof(EditCharHeight));
+            OnPropertyChanged(nameof(EditHorizontalHexView));
+            OnPropertyChanged(nameof(EditVerticalHexView));
+            OnPropertyChanged(nameof(EditNewLine));
+            OnPropertyChanged(nameof(IsLocked));
         }
     }
 }
