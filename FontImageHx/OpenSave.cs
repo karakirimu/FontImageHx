@@ -1,19 +1,29 @@
-﻿using FontImageHx;
+using FontImageHx;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Text.Json;
 using System.Windows.Controls;
 
 namespace FontImageHx
 {
-    internal class OpenSave
+    internal interface IMainFileService
+    {
+        (string, IReadOnlyList<ImageProperty>) OpenProfile();
+
+        void SaveProfile(IReadOnlyList<ImageProperty> images);
+
+        void ExportToBitmap(IReadOnlyList<ImageProperty> images);
+
+        void ExportToCHeader(IReadOnlyList<ImageProperty> images, Orientation orientation);
+    }
+
+    internal class OpenSave : IMainFileService
     {
         public OpenSave() { }
 
-        public static (string, IReadOnlyList<ImageProperty>) OpenProfile()
+        public (string, IReadOnlyList<ImageProperty>) OpenProfile()
         {
             OpenFileDialog openFileDialog = new()
             {
@@ -34,7 +44,7 @@ namespace FontImageHx
             return (string.Empty, new List<ImageProperty>());
         }
 
-        public static void SaveProfile(IReadOnlyList<ImageProperty> images)
+        public void SaveProfile(IReadOnlyList<ImageProperty> images)
         {
             SaveFileDialog saveFileDialog = new()
             {
@@ -51,7 +61,7 @@ namespace FontImageHx
             }
         }
 
-        public static void ExportToBitmap(IReadOnlyList<ImageProperty> images)
+        public void ExportToBitmap(IReadOnlyList<ImageProperty> images)
         {
             if (images == null || images.Count == 0)
             {
@@ -73,7 +83,7 @@ namespace FontImageHx
             }
         }
 
-        public static void ExportToCHeader(IReadOnlyList<ImageProperty> images, Orientation orientation)
+        public void ExportToCHeader(IReadOnlyList<ImageProperty> images, Orientation orientation)
         {
             SaveFileDialog saveFileDialog = new()
             {

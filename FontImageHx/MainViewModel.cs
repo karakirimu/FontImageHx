@@ -1,19 +1,21 @@
-﻿using FontImageHx;
+using FontImageHx;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 
 namespace FontImageHx
 {
     internal class MainViewModel : INotifyPropertyChanged
     {
+        private readonly IApplicationService _applicationService;
+        private readonly IMainDialogService _dialogService;
+        private readonly IMainFileService _fileService;
         private string _textString = "";
         private ImageProperty _selectedImage;
-        private ToggleButton[][]? _toggleButtonMap;
+        private byte[][]? _editBitmap;
         private string _fontSize = "";
         private string _fontFamily = "";
         private string _horizontalHexView = "";
@@ -80,49 +82,52 @@ namespace FontImageHx
         public WindowCommand About { get; init; }
         public WindowCommand SaveBitmap { get; init; }
         public WindowCommand SaveCHexHorizontal { get; init; }
-        public WindowCommand SaveCHexVertical{ get; init; }
+        public WindowCommand SaveCHexVertical { get; init; }
         public WindowCommand NewProfile { get; init; }
         public WindowCommand OpenProfile { get; init; }
         public WindowCommand SaveProfile { get; init; }
         public WindowCommand ImageUpdate { get; init; }
-        public MainViewModel()
+        public MainViewModel(
+            IApplicationService applicationService,
+            IMainDialogService dialogService,
+            IMainFileService fileService)
         {
+            _applicationService = applicationService;
+            _dialogService = dialogService;
+            _fileService = fileService;
             ConvertedImages = new ObservableCollection<ImageProperty>();
             _selectedImage = new ImageProperty();
 
             Close = new WindowCommand((_) =>
             {
-                Application.Current.Shutdown();
+                _applicationService.Shutdown();
             });
 
             SaveBitmap = new WindowCommand((_) =>
             {
-                OpenSave.ExportToBitmap(ConvertedImages);
+                _fileService.ExportToBitmap(ConvertedImages);
             });
 
             SaveCHexHorizontal = new WindowCommand((_) =>
             {
-                OpenSave.ExportToCHeader(ConvertedImages, Orientation.Horizontal);
+                _fileService.ExportToCHeader(ConvertedImages, Orientation.Horizontal);
             });
 
             SaveCHexVertical = new WindowCommand((_) =>
             {
-                OpenSave.ExportToCHeader(ConvertedImages, Orientation.Vertical);
+                _fileService.ExportToCHeader(ConvertedImages, Orientation.Vertical);
             });
 
             NewProfile = new WindowCommand((_) =>
             {
-                TextWizard textWizard = new()
-                {
-                    Owner = Application.Current.MainWindow
-                };
-                if (textWizard.ShowDialog() == false)
+                IReadOnlyList<ImageProperty>? images = _dialogService.ShowNewProfileDialog();
+                if (images == null)
                 {
                     return;
                 }
 
                 ConvertedImages.Clear();
-                foreach (var im in textWizard.Result)
+                foreach (var im in images)
                 {
                     im.PropertyChanged += OnImagePropertyUpdated;
                     ConvertedImages.Add(im);
@@ -134,7 +139,7 @@ namespace FontImageHx
 
             OpenProfile = new WindowCommand((_) =>
             {
-                var profile = OpenSave.OpenProfile();
+                var profile = _fileService.OpenProfile();
 
                 if (profile.Item2.Count == 0)
                 {
@@ -159,65 +164,96 @@ namespace FontImageHx
 
             SaveProfile = new WindowCommand((_) =>
             {
-                OpenSave.SaveProfile(ConvertedImages);
+                _fileService.SaveProfile(ConvertedImages);
             });
 
             ClickUp = new WindowCommand((_) =>
             {
-                BitmapCanvas.Move(ToggleButtonMap, MoveDirection.Up);
+                MoveEditBitmap(MoveDirection.Up);
             });
 
             ClickLeft = new WindowCommand((_) =>
             {
-                BitmapCanvas.Move(ToggleButtonMap, MoveDirection.Left);
+                MoveEditBitmap(MoveDirection.Left);
             });
 
             ClickDown = new WindowCommand((_) =>
             {
-                BitmapCanvas.Move(ToggleButtonMap, MoveDirection.Down);
+                MoveEditBitmap(MoveDirection.Down);
             });
 
             ClickRight = new WindowCommand((_) =>
             {
-                BitmapCanvas.Move(ToggleButtonMap, MoveDirection.Right);
+                MoveEditBitmap(MoveDirection.Right);
             });
 
             ImageUpdate = new WindowCommand((_) =>
             {
-                if (LastSelectedIndex < 0 || ToggleButtonMap == null)
+                if (LastSelectedIndex < 0 || EditBitmap == null)
                 {
                     return;
                 }
 
-                byte[][] bitmapbyte = BitmapCanvas.ToggleToByte(ToggleButtonMap);
                 ImageProperty w = MainImageLogic.CreateUpdatedImage(
                     ConvertedImages[LastSelectedIndex],
-                    bitmapbyte);
+                    EditBitmap);
                 ConvertedImages[LastSelectedIndex] = w;
                 LastSelectedImage = w;
             });
 
             About = new WindowCommand((_) =>
             {
-                AboutWindow window = new()
-                {
-                    Owner = Application.Current.MainWindow
-                };
-                window.Show();
+                _dialogService.ShowAboutDialog();
             });
         }
 
-        public ToggleButton[][]? ToggleButtonMap
+        public byte[][]? EditBitmap
         {
-            get => _toggleButtonMap;
-            set
+            get => _editBitmap;
+            private set
             {
-                if (_toggleButtonMap != value)
+                if (!ReferenceEquals(_editBitmap, value))
                 {
-                    _toggleButtonMap = value;
+                    _editBitmap = value;
                     OnPropertyChanged();
                 }
             }
+        }
+
+        internal void UpdateEditBitmapCell(int x, int y, bool isChecked)
+        {
+            if (EditBitmap == null)
+            {
+                return;
+            }
+
+            if (y < 0 || y >= EditBitmap.Length)
+            {
+                return;
+            }
+
+            if (x < 0 || x >= EditBitmap[y].Length)
+            {
+                return;
+            }
+
+            EditBitmap[y][x] = (byte)(isChecked ? 1 : 0);
+        }
+
+        private void MoveEditBitmap(MoveDirection direction)
+        {
+            if (EditBitmap == null)
+            {
+                return;
+            }
+
+            BitmapMatrix.Move(EditBitmap, direction);
+            OnPropertyChanged(nameof(EditBitmap));
+        }
+
+        private void RefreshEditBitmapFromImage(ImageProperty image)
+        {
+            EditBitmap = BitmapCanvas.CreateBitmapState(image);
         }
 
         private void UpdateImageProperty(Action<ImageProperty> updateAction)
@@ -232,6 +268,7 @@ namespace FontImageHx
                 updateAction);
             ConvertedImages[LastSelectedIndex] = i;
             _selectedImage = i;
+            RefreshEditBitmapFromImage(i);
             OnPropertyChanged(nameof(LastSelectedImage));
         }
 
@@ -405,6 +442,7 @@ namespace FontImageHx
                     _verticalHexView = value.HexVertical;
                     _newLine = value.NewLine;
                     _editLocked = value.Locked;
+                    RefreshEditBitmapFromImage(value);
                     OnPropertyChanged(nameof(EditFontFamily));
                     OnPropertyChanged(nameof(EditFontSize));
                     OnPropertyChanged(nameof(EditFontBold));

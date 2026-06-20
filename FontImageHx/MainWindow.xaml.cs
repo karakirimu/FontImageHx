@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
@@ -10,11 +10,10 @@ namespace FontImageHx
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        internal MainWindow(MainViewModel viewModel)
         {
             InitializeComponent();
 
-            var viewModel = new MainViewModel();
             viewModel.PropertyChanged += OnPropertyChanged;
             DataContext = viewModel;
         }
@@ -50,21 +49,17 @@ namespace FontImageHx
             BitmapGrid.ColumnDefinitions.Clear();
             BitmapGrid.Children.Clear();
 
-            ToggleButton[][]? toggle
-                = BitmapCanvas.CreateToggleButtonMap(vm.LastSelectedImage);
-
-            if (toggle == null)
+            byte[][]? bitmap = vm.EditBitmap;
+            if (bitmap == null)
             {
                 return;
             }
 
-            if (!(int.TryParse(vm.LastSelectedImage.CharWidth, out int width)
-                    && int.TryParse(vm.LastSelectedImage.CharHeight, out int height)))
-            {
-                return;
-            }
+            int height = bitmap.Length;
+            int width = bitmap[0].Length;
 
             Style resource = (Style)FindResource("ToggleButtonStyle");
+            ToggleButton[][] toggle = BitmapCanvas.CreateToggleButtonMap(bitmap);
             for (int y = 0; y <= height; y++)
             {
                 BitmapGrid.RowDefinitions.Add(
@@ -88,15 +83,17 @@ namespace FontImageHx
                         continue;
                     }
 
-                    toggle[y - 1][x - 1].Style = resource;
+                    int bitmapX = x - 1;
+                    int bitmapY = y - 1;
+                    toggle[bitmapY][bitmapX].Style = resource;
+                    toggle[bitmapY][bitmapX].Checked += (_, _) => vm.UpdateEditBitmapCell(bitmapX, bitmapY, true);
+                    toggle[bitmapY][bitmapX].Unchecked += (_, _) => vm.UpdateEditBitmapCell(bitmapX, bitmapY, false);
                     //toggle[y - 1][x - 1]
-                    ToggleButton t = toggle[y - 1][x - 1];
+                    ToggleButton t = toggle[bitmapY][bitmapX];
                     BitmapGrid.Children.Add(t);
                     SetPos(t, x, y);
                 }
             }
-
-            vm.ToggleButtonMap = toggle;
         }
 
         private void OnPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -108,7 +105,7 @@ namespace FontImageHx
 
             var vm = (MainViewModel)sender;
 
-            if (e.PropertyName == "LastSelectedImage")
+            if (e.PropertyName == "LastSelectedImage" || e.PropertyName == "EditBitmap")
             {
                 CreateEditControl(vm);
                 return;

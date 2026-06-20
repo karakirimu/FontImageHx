@@ -21,4 +21,9 @@
     <Content Include="app.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.74.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+  </ItemGroup>
+
 </Project>
